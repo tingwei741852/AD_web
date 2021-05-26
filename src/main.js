@@ -7,11 +7,13 @@ import router from './router'
 import store from './store'
 import './style/theme/index.css'
 import App from './App.vue'
+import Antd from 'ant-design-vue';
+import 'ant-design-vue/dist/antd.css';
+import locale from 'element-ui/lib/locale/lang/zh-TW'
 
-// library.add(faUserSecret)
-// Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.use(Antd);
 Vue.config.productionTip = false
-Vue.use(ElementUI)
+Vue.use(ElementUI, { locale })
 
 new Vue({
   router,
