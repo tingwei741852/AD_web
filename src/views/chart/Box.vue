@@ -1,101 +1,80 @@
 <template>
-  <div  :style="{ height: (height || 25) + 'vh' }"></div>
+  <div></div>
 </template>
 
 <script>
-import { Chart } from "@antv/g2";
-// import Slider from "@antv/g2/lib/chart/controller/slider";
-
-// registerComponentController("slider", Slider);
-
+import { Chart } from '@antv/g2'
+import _ from 'lodash'
 export default {
-  name: "Box",
+  name: 'G2Box',
   data: () => ({
-    chart: null,
+    chart: null
   }),
   props: {
     data: Array,
-    xKey: String,
-    yKey: String,
     height: Number,
-    legend: Array,
-    legendKey: String,
-    yTickCount: Number,
-    xTickCount: Number,
+    xKey: String,
+    yTickCount: Number
   },
-  mounted() {
-    if (!this.data) return;
-
-    let xKey =
-      this.xKey ||
-      Object.keys(this.data[0]).find(
-        (key) => typeof this.data[0][key] == "string"
-      );
-
-    let yKey =
-      this.yKey ||
-      Object.keys(this.data[0]).find(
-        (key) => typeof this.data[0][key] == "number"
-      );
-
-    this.drawChart(xKey, yKey);
+  mounted () {
+    this.drawChart()
   },
   methods: {
-    drawChart(xKey, yKey) {
+    drawChart (legend) {
       this.chart = new Chart({
         container: this.$el,
         autoFit: true,
         height: this.height || 500,
-        padding: [50 , 30],
-      });
-      this.chart.legend({
-        position: "top",
-      });
-    //   this.chart.option("slider", {
-    //     end: 1,
-    //   });
+        padding: [20, 50],
+        defaultInteractions: [
+          'tooltip',
+          'active-region'
+        ]
+      })
 
-      this.chart.data(this.data);
-      this.chart.scale(yKey, { tickCount: this.yTickCount, nice: true });
-      this.chart.scale(xKey, { tickCount: this.xTickCount, nice: true });
+      const data = _.cloneDeep(this.data).map((val) => {
+        val.x = val[this.xKey]
+        val.range = [val.min, val.q1, val.q2, val.q3, val.max]
+        return val
+      })
 
-      if (this.legend)
-        this.chart.scale(this.legendKey, {
-          type: "cat",
-          values: this.legend,
-        });
+      // const theme = this.chart.getTheme()
 
-      let limitPoint = [];
+      this.chart.data(data)
+      this.chart.axis('range', { position: 'left' })
+      this.chart.axis('outliers', false)
+      this.chart.scale({
+        range: {
+          sync: true,
+          nice: true,
+          tickCount: this.yTickCount
+        },
+        outliers: {
+          sync: 'range',
+          nice: true,
+          tickCount: this.yTickCount
+        }
+      })
+
+      this.chart.tooltip({ showMarkers: false })
 
       this.chart
+        .schema()
+        .position('x*range')
         .shape('box')
-        .position(`${xKey}*${yKey}`)
-        .style({stroke: '#613F75',fill: '#613F75',fillOpacity: 0.3})
-        .tooltip('x*low*q1*median*q3*high', (x, low, q1, median, q3, high) => {
-            return {
-            name: x,
-            low,
-            q1,
-            median,
-            q3,
-            high
-            };
-        })
+        .color('#613F75')
+        .tooltip('x*min*q1*q2*q3*max*outliers')
+        .style(
+          {
+            stroke: '#613F75',
+            fill: '#613F75',
+            fillOpacity: 0.3
+          }
+        )
+        .adjust('dodge')
 
-      this.chart
-        .point()
-        .position(`${xKey}*${yKey}`)
-        .color(this.legendKey || "")
-        .style(`${xKey}*${yKey}`, (x, y) => {
-          let isLimit = limitPoint.find(
-            (data) => data[xKey] == x && data[yKey] == y
-          );
-          if (!isLimit) return { fillOpacity: 0, strokeOpacity: 0 };
-          return;
-        });
-
-      this.chart.render();
-    },
-  },
-};
+      this.chart.render()
+    }
+  }
+}
 </script>

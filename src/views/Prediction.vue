@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <div class="page_title">
-      <h2 class="title_text">報價預測</h2>
+      <h2 class="title_text" style="margin-top:15px;">報價預測</h2>
       <div class="title_line"></div>
     </div>
     <div class="btn_block">
@@ -12,9 +12,9 @@
           <!-- <div slot="tip" class="el-upload__tip">只能上傳文件，且不超过500kb</div> -->
         </el-upload>
       </div>
-      <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button>
+      <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
       <el-button type="primary" :disabled="tableData.length <= 0" @click="PredictionAction">開始預測</el-button>
-      <el-button type="primary" disabled>下載結果</el-button>
+      <el-button type="primary" :disabled="!ChartShow">下載結果</el-button>
     </div>
     <div class="table_block">
       <el-card class="box-card">
@@ -41,10 +41,19 @@
           </el-pagination>
         </div>
       </el-card>
-      <h4>預測盒鬚圖</h4>
-      <el-divider></el-divider>
-      <el-card class="box-card">
-      </el-card>
+      <div v-if="ChartShow">
+      <h4 style="margin-top:15px;">預測盒鬚圖</h4>
+        <el-divider></el-divider>
+        <el-card class="box-card">
+          <box-chart
+          :data="Boxtdata"
+          :yTickCount="10"
+          :xKey="'profession'"
+          :legend="['AAA', 'BBB', 'CCC']"
+          :legendKey="'category'"
+          ></box-chart>
+        </el-card>
+      </div>
     </div>
   </div>
 </template>
@@ -53,6 +62,8 @@
 import * as data from './data/prediction_column'
 // import FileSaver from 'file-saver'
 import xlsx from 'xlsx'
+import * as BoxData from './data/Box_data'
+import Box from './chart/Box'
 export default {
   data () {
     return {
@@ -63,8 +74,16 @@ export default {
       tableHeader: [],
       currentPage: 1,
       pagesize: 10,
-      upload_loading: false
+      upload_loading: false,
+      Boxtdata: BoxData.BOX_SAMPLE,
+      ChartShow: false
     }
+  },
+  components: {
+    'box-chart': Box
+  },
+  created: function () {
+    console.log(this.Boxtdata)
   },
   methods: {
     async handleChange (file, fileList) {
@@ -167,6 +186,7 @@ export default {
         datalist[k].q1 = q1
         datalist[k].q3 = q3
       }
+      this.ChartShow = true
     }
   }
 }

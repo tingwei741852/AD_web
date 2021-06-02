@@ -7,11 +7,11 @@ import router from './router'
 import store from './store'
 import './style/theme/index.css'
 import App from './App.vue'
-import Antd from 'ant-design-vue';
-import 'ant-design-vue/dist/antd.css';
+import Antd from 'ant-design-vue'
+import 'ant-design-vue/dist/antd.css'
 import locale from 'element-ui/lib/locale/lang/zh-TW'
 
-Vue.use(Antd);
+Vue.use(Antd)
 Vue.config.productionTip = false
 Vue.use(ElementUI, { locale })
 
