@@ -14,7 +14,12 @@
       </div>
       <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
       <el-button type="primary" :disabled="tableData.length <= 0" @click="PredictionAction">開始預測</el-button>
-      <el-button type="primary" :disabled="!ChartShow">下載結果</el-button>
+      <span style="margin-left:12px; vertical-align: top;display: inline-block;">
+        <excel-export :sheet="sheet" filename="Prediction_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
+      </span>
+      <span style="margin-left:12px; vertical-align: top;display: inline-block;">
+        <excel-export :sheet="sheet_demo" filename="Prediction_Demo"><el-button type="primary">下載樣板</el-button></excel-export>
+      </span>
     </div>
     <div class="table_block">
       <el-card class="box-card">
@@ -64,7 +69,13 @@ import * as data from './data/prediction_column'
 import xlsx from 'xlsx'
 import * as BoxData from './data/Box_data'
 import Box from './chart/Box'
+import { ExcelExport } from 'pikaz-excel-js'
+var FileSaver = require('file-saver')
 export default {
+  components: {
+    ExcelExport,
+    'box-chart': Box
+  },
   data () {
     return {
       tableData: [],
@@ -76,14 +87,38 @@ export default {
       pagesize: 10,
       upload_loading: false,
       Boxtdata: BoxData.BOX_SAMPLE,
-      ChartShow: false
+      ChartShow: false,
+      sheet_demo: [{
+        tHeader: data.COLUMN_KEY,
+        table: data.COLUMN_CHINESE,
+        keys: data.COLUMN_KEY,
+        sheetName: 'Sheet1'
+      }]
     }
-  },
-  components: {
-    'box-chart': Box
   },
   created: function () {
     console.log(this.Boxtdata)
+  },
+  computed: {
+    sheet: function () {
+      var cn = []
+      var ck = []
+      this.column_option.forEach(function (value) {
+        cn.push(value.label)
+        ck.push(value.prop)
+      })
+      var output =
+      [
+        {
+          tHeader: cn,
+          table: this.tableData,
+          keys: ck,
+          sheetName: 'Sheet1'
+        }
+      ]
+      console.log(output)
+      return output
+    }
   },
   methods: {
     async handleChange (file, fileList) {
@@ -100,6 +135,7 @@ export default {
       console.log(header)
       console.log(data)
       this.tableData = data.slice(1)
+      // this.tableData = data
       this.upload_loading = false
       this.column_option = header
     },
@@ -163,6 +199,32 @@ export default {
         headers.push(COLUMN_OPTION)
       }
       return headers
+    },
+    DownloadExcel () {
+      const defaultCellStyle = { font: { name: 'Verdana', sz: 11, color: 'FF00FF88' }, fill: { fgColor: { rgb: 'FFFFAA00' } } }
+      const wopts = { bookType: 'xlsx', bookSST: false, type: 'binary', defaultCellStyle: defaultCellStyle, showGridLines: false }
+      const wb = { SheetNames: ['Sheet1'], Sheets: {}, Props: {} }
+      const data = this.tableData
+      wb.Sheets.Sheet1 = xlsx.utils.json_to_sheet(data)
+      // 建立二進位制物件寫入轉換好的位元組流
+      const tmpDown = new Blob([this.s2ab(xlsx.write(wb, wopts))], { type: 'application/octet-stream' })
+      FileSaver.saveAs(tmpDown, 'Prediction_File.xls')
+    },
+    s2ab (s) {
+      if (typeof ArrayBuffer !== 'undefined') {
+        var buf = new ArrayBuffer(s.length)
+        var view = new Uint8Array(buf)
+        for (var i = 0; i !== s.length; i++) {
+          view[i] = s.charCodeAt(i) & 0xFF
+        }
+        return buf
+      } else {
+        var buf1 = new Array(s.length)
+        for (var l = 0; l !== s.length; i++) {
+          buf1[l] = s.charCodeAt(l) & 0xFF
+        }
+        return buf1
+      }
     },
     current_change (currentPage) {
       this.currentPage = currentPage
