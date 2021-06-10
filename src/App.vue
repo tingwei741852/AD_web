@@ -13,12 +13,12 @@
             </el-popover>
         </div>
         <ul class='NavList' id="NavList">
-          <li>
+          <router-link to="/prediction"><li>
             PREDICTION
-          </li>
-          <li>
+          </li></router-link>
+          <router-link to="/setting"><li>
             SETTING
-          </li>
+          </li></router-link>
           <!-- <li>
             <el-popover placement="top-start" width="150" trigger="click">
               <p class='user_title'>您好! 小翔</p>

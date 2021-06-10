@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="prediction">
     <div class="page_title">
       <h2 class="title_text" style="margin-top:15px;">報價預測</h2>
       <div class="title_line"></div>
