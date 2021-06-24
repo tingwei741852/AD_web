@@ -65,7 +65,7 @@
         </div>
       </el-card>
     </div>
-    <edit-dialog :dialogFormVisible="dialogFormVisible" :form="dialogform"></edit-dialog>
+    <edit-dialog :dialogFormVisible="dialogFormVisible" :form="dialogform" :VisibleFunction="VisibleFunction"></edit-dialog>
   </div>
 </template>
 <script>
@@ -113,6 +113,9 @@ export default {
       this.dialogform.material = data.material
       this.dialogform.category = data.category
       this.dialogFormVisible = true
+    },
+    VisibleFunction () {
+      this.dialogFormVisible = false
     }
   }
 }

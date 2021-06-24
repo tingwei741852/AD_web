@@ -29,7 +29,7 @@
             </el-option>
           </el-select>
           </div>
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"  style="width: 100%">
+        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"  style="width: 100%" v-loading="loading" element-loading-text="計算中...">
           <el-table-column
             type="index"
             :index="indexMethod">
@@ -46,7 +46,7 @@
           </el-pagination>
         </div>
       </el-card>
-      <div v-if="ChartShow">
+      <div v-if="false">
       <h4 style="margin-top:15px;">預測盒鬚圖</h4>
         <el-divider></el-divider>
         <el-card class="box-card">
@@ -64,12 +64,14 @@
 </template>
 
 <script>
+import PredictionData from './data/prediction_data.json'
 import * as data from './data/prediction_column'
 // import FileSaver from 'file-saver'
 import xlsx from 'xlsx'
 import * as BoxData from './data/Box_data'
 import Box from './chart/Box'
 import { ExcelExport } from 'pikaz-excel-js'
+
 var FileSaver = require('file-saver')
 export default {
   components: {
@@ -88,6 +90,7 @@ export default {
       upload_loading: false,
       Boxtdata: BoxData.BOX_SAMPLE,
       ChartShow: false,
+      loading: false,
       sheet_demo: [{
         tHeader: data.COLUMN_KEY,
         table: data.COLUMN_CHINESE,
@@ -162,8 +165,8 @@ export default {
         for (C = range.s.c; C <= range.e.c; ++C) {
           const cellname = sheet[xlsx.utils.encode_cell({ c: C, r: SR })]
           const cell = sheet[xlsx.utils.encode_cell({ c: C, r: R })]
-          let hdr = 'UNKNOWN ' + C
-          let ndr = 'UNKNOWN ' + C
+          let hdr = '-'
+          let ndr = '-'
           if (cell && cell.t) {
             hdr = xlsx.utils.format_cell(cell)
           }
@@ -233,21 +236,30 @@ export default {
       return ((this.currentPage - 1) * 10) + index + 1
     },
     PredictionAction () {
-      var datalist = this.tableData
-      for (var k in datalist) {
-        var upper = parseInt(Math.random() * (500 - 50 + 1) + 50, 10)
-        var lower = parseInt(Math.random() * (upper - 40 + 1) + 40, 10)
-        var standard = parseInt(Math.random() * (10 - 2 + 1) + 2, 10)
-        var avg = (upper + lower) / 2
-        var q1 = (avg + lower) / 2
-        var q3 = (avg + upper) / 2
-        datalist[k].prediction = avg
-        datalist[k].upper = upper
-        datalist[k].lower = lower
-        datalist[k].standard = standard
-        datalist[k].q1 = q1
-        datalist[k].q3 = q3
+      console.log(data.COLUMN_DATA)
+      this.loading = true
+      this.column_option = []
+      this.column_model = []
+      for (var a in data.COLUMN_DATA) {
+        this.column_option.push(data.COLUMN_DATA[a])
+        this.column_model.push(data.COLUMN_DATA[a])
       }
+      this.column_option.push({ fixed: 'right', label: 'Count', prop: 'count' })
+      this.column_model.push({ fixed: 'right', label: 'Count', prop: 'count' })
+      setTimeout(() => {
+        var datalist = this.tableData
+        for (var k in datalist) {
+          datalist[k].prediction = PredictionData[k].prediction
+          datalist[k].upper = PredictionData[k].upper
+          datalist[k].lower = PredictionData[k].lower
+          datalist[k].standard = PredictionData[k].standard
+          datalist[k].q1 = PredictionData[k].q1
+          datalist[k].q3 = PredictionData[k].q3
+          datalist[k].mean = PredictionData[k].mean
+          datalist[k].count = PredictionData[k].count
+        }
+        this.loading = false
+      }, 1500)
       this.ChartShow = true
     }
   }

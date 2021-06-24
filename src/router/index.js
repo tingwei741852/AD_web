@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import index from '../views/Prediction.vue'
+import index from '../views/Login.vue'
 
 Vue.use(VueRouter)
 
