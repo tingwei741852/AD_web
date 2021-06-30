@@ -32,7 +32,6 @@
       </div>
     </el-dialog>
   </template>
-  
 
 <script>
 export default {
