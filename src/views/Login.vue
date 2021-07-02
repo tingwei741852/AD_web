@@ -51,6 +51,9 @@ export default {
       }
     }
   },
+  created: function () {
+    
+  },
   methods: {
     loginaction (formName) {
       this.$refs[formName].validate((valid) => {

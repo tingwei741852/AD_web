@@ -10,10 +10,13 @@ import App from './App.vue'
 import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 import locale from 'element-ui/lib/locale/lang/zh-TW'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
 
 Vue.use(Antd)
 Vue.config.productionTip = false
 Vue.use(ElementUI, { locale })
+Vue.use(VueAxios, axios)
 
 new Vue({
   router,
