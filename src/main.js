@@ -10,7 +10,9 @@ import App from './App.vue'
 import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 import locale from 'element-ui/lib/locale/lang/zh-TW'
+import AFTableColumn from 'af-table-column'
 
+Vue.use(AFTableColumn)
 Vue.use(Antd)
 Vue.config.productionTip = false
 Vue.use(ElementUI, { locale })

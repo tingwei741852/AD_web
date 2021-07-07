@@ -4,6 +4,9 @@ export const UPLOAD_DATA = [{
     prop: 'key',
     disabled: true
   }, {
+    label: '類別',
+    prop: 'category'
+  }, {
     label: '標準材質',
     prop: 'material'
   }, {
@@ -26,6 +29,10 @@ export const UPLOAD_DATA = [{
     fixed: 'right',
     label: 'Upper',
     prop: 'Upper Bound'
+  }, {
+    fixed: 'right',
+    label: 'Mean',
+    prop: 'mean'
   }, {
     fixed: 'right',
     label: 'Lower',
