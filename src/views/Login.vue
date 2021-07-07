@@ -34,6 +34,7 @@
 </template>
 
 <script>
+// import axios from 'axios'
 export default {
   data () {
     return {
@@ -51,13 +52,23 @@ export default {
       }
     }
   },
-  created: function () {
-    
-  },
   methods: {
     loginaction (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          // axios({
+          //   methods: 'POST',
+          //   url: 'http://192.168.50.135:8000/accounts/login_api/',
+          //   // url: 'http://192.168.50.135:8000/test',
+          //   data: {
+          //     // csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+          //     username: this.account,
+          //     password: this.password
+          //   }
+          // })
+          //   .then((resp) => {
+          //     console.log(resp.data)
+          //   })
           window.location.href = '/prediction'
         }
       })
