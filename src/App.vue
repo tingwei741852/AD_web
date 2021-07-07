@@ -66,7 +66,7 @@
     padding-right: 25px;
     background-color: #613F75;
     color: #ffffff;
-    font-size: 20px;
+    font-size: 30px;
 
     a {
       font-weight: bold;

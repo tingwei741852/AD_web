@@ -29,13 +29,13 @@
             </el-option>
           </el-select>
           </div>
-        <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"  style="width: 100%" v-loading="loading" element-loading-text="計算中...">
+        <el-table :row-style="{height: '80px'}" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width: 100%" v-loading="loading" element-loading-text="計算中...">
           <el-table-column
             type="index"
             :index="indexMethod">
           </el-table-column>
-          <el-table-column v-for="item in column_model" :key="item.prop" :prop="item.prop" :label="item.label" :fixed="item.fixed">
-          </el-table-column>
+          <af-table-column v-for="item in column_model" :key="item.prop" :prop="item.prop" :label="item.label" :fixed="item.fixed">
+          </af-table-column>
         </el-table>
         <div style="text-align:center; margin-top:15px;">
           <el-pagination
@@ -249,13 +249,13 @@ export default {
       setTimeout(() => {
         var datalist = this.tableData
         for (var k in datalist) {
-          datalist[k].prediction = PredictionData[k].prediction
-          datalist[k].upper = PredictionData[k].upper
-          datalist[k].lower = PredictionData[k].lower
+          datalist[k].prediction = (PredictionData[k].prediction).slice(0, 5)
+          datalist[k].upper = (PredictionData[k].upper).slice(0, 5)
+          datalist[k].lower = (PredictionData[k].lower).slice(0, 5)
           datalist[k].standard = PredictionData[k].standard
-          datalist[k].q1 = PredictionData[k].q1
-          datalist[k].q3 = PredictionData[k].q3
-          datalist[k].mean = PredictionData[k].mean
+          datalist[k].q1 = (PredictionData[k].q1).slice(0, 5)
+          datalist[k].q3 = (PredictionData[k].q3).slice(0, 5)
+          datalist[k].mean = (PredictionData[k].mean).slice(0, 5)
           datalist[k].count = PredictionData[k].count
         }
         this.loading = false

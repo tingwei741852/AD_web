@@ -1,6 +1,7 @@
 export const COLUMN_DATA = [{
   label: '類別',
-  prop: 'category'
+  prop: 'category',
+  width: '30px'
 }, {
   label: '標準材質',
   prop: 'material'
@@ -22,7 +23,7 @@ export const COLUMN_DATA = [{
   prop: 'prediction'
 }, {
   fixed: 'right',
-  label: 'Upper Bound',
+  label: 'Max',
   prop: 'upper'
 }, {
   fixed: 'right',
@@ -38,7 +39,7 @@ export const COLUMN_DATA = [{
   prop: 'q3'
 }, {
   fixed: 'right',
-  label: 'Lower Bound',
+  label: 'Min',
   prop: 'lower'
 }]
 
