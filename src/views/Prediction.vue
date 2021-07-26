@@ -13,7 +13,7 @@
         </el-upload>
       </div>
       <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
-      <el-button type="primary" :disabled="tableData.length <= 0" @click="PredictionAction">開始預測</el-button>
+      <el-button type="primary" @click="PredictionAction">開始預測</el-button>
       <span style="margin-left:12px; vertical-align: top;display: inline-block;">
         <excel-export :sheet="sheet" filename="Prediction_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
       </span>
@@ -64,13 +64,14 @@
 </template>
 
 <script>
-import PredictionData from './data/prediction_data.json'
+// import PredictionData from './data/prediction_data.json'
 import * as data from './data/prediction_column'
 // import FileSaver from 'file-saver'
 import xlsx from 'xlsx'
 import * as BoxData from './data/Box_data'
 import Box from './chart/Box'
 import { ExcelExport } from 'pikaz-excel-js'
+import axios from 'axios'
 
 var FileSaver = require('file-saver')
 export default {
@@ -99,9 +100,6 @@ export default {
       }]
     }
   },
-  created: function () {
-    console.log(this.Boxtdata)
-  },
   computed: {
     sheet: function () {
       var cn = []
@@ -119,7 +117,6 @@ export default {
           sheetName: 'Sheet1'
         }
       ]
-      console.log(output)
       return output
     }
   },
@@ -135,10 +132,9 @@ export default {
       // data = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]).map(row => mapKeys(row, (value, key) => key.trim()))
       data = this.getDataRow(workbook.Sheets[workbook.SheetNames[0]])
       const header = this.getHeaderRow(workbook.Sheets[workbook.SheetNames[0]])
-      console.log(header)
-      console.log(data)
       this.tableData = data.slice(1)
       // this.tableData = data
+      console.log(this.tableData)
       this.upload_loading = false
       this.column_option = header
     },
@@ -236,30 +232,23 @@ export default {
       return ((this.currentPage - 1) * 10) + index + 1
     },
     PredictionAction () {
-      console.log(data.COLUMN_DATA)
       this.loading = true
-      this.column_option = []
-      this.column_model = []
-      for (var a in data.COLUMN_DATA) {
-        this.column_option.push(data.COLUMN_DATA[a])
-        this.column_model.push(data.COLUMN_DATA[a])
-      }
-      this.column_option.push({ fixed: 'right', label: 'Count', prop: 'count' })
-      this.column_model.push({ fixed: 'right', label: 'Count', prop: 'count' })
-      setTimeout(() => {
-        var datalist = this.tableData
-        for (var k in datalist) {
-          datalist[k].prediction = (PredictionData[k].prediction).slice(0, 5)
-          datalist[k].upper = (PredictionData[k].upper).slice(0, 5)
-          datalist[k].lower = (PredictionData[k].lower).slice(0, 5)
-          datalist[k].standard = PredictionData[k].standard
-          datalist[k].q1 = (PredictionData[k].q1).slice(0, 5)
-          datalist[k].q3 = (PredictionData[k].q3).slice(0, 5)
-          datalist[k].mean = (PredictionData[k].mean).slice(0, 5)
-          datalist[k].count = PredictionData[k].count
+      axios({
+        method: 'POST',
+        url: 'http://192.168.50.135:8000/prediction_api',
+        responseType: 'json',
+        //  API要求的資料
+        data: {
+          start_predict: 'start_predict',
+          data: this.tableData
         }
-        this.loading = false
-      }, 1500)
+      })
+        .then((response) => {
+          console.log(response.data)
+          this.tableData = response.data
+          this.loading = false
+        })
+        .catch((error) => console.log(error))
       this.ChartShow = true
     }
   }

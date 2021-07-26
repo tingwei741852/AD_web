@@ -4,13 +4,13 @@ export const COLUMN_DATA = [{
   width: '30px'
 }, {
   label: '標準材質',
-  prop: 'material'
+  prop: 'std_mat'
 }, {
   label: '標準規範',
-  prop: 'specification'
+  prop: 'std_reg'
 }, {
   label: '厚',
-  prop: 'thick'
+  prop: 'thickness'
 }, {
   label: '寬',
   prop: 'width'
@@ -20,11 +20,11 @@ export const COLUMN_DATA = [{
 }, {
   fixed: 'right',
   label: 'Prediction',
-  prop: 'prediction'
+  prop: 'predict_value'
 }, {
   fixed: 'right',
   label: 'Max',
-  prop: 'upper'
+  prop: 'max'
 }, {
   fixed: 'right',
   label: 'Q1',
@@ -40,7 +40,7 @@ export const COLUMN_DATA = [{
 }, {
   fixed: 'right',
   label: 'Min',
-  prop: 'lower'
+  prop: 'min'
 }]
 
 // export const COLUMN_KEY = ['category', 'material_id', 'name', 'name_en', 'Revision_Level', 'material', 'specification', 'thick', 'width', 'length', 'direction', 'note', 'PR_ITEM', 'qty', 'UNIT', 'WBS', 'PO_ITEM', 'price', 'measure', 'currency', 'rate', 'contract_date', 'delivery_date', 'delivery_way', 'supplier', 'statisical_delivery_date', 'long', 'prediction', 'upper', 'q1', 'mean', 'q3', 'lower']
@@ -80,19 +80,19 @@ export const COLUMN_DATA = [{
 //   lower: 'Lower Bound'
 // }]
 
-export const COLUMN_KEY = ['category', 'material', 'specification', 'thick', 'width', 'length', 'note', 'prediction', 'upper', 'q1', 'mean', 'q3', 'lower']
+export const COLUMN_KEY = ['category', 'std_mat', 'std_reg', 'thickness', 'width', 'length', 'reg_sup', 'predict_value', 'max', 'q1', 'mean', 'q3', 'min']
 export const COLUMN_CHINESE = [{
   category: '類別',
-  material: '標準材質',
-  specification: '標準規範',
-  thick: '厚',
+  std_mat: '標準材質',
+  std_reg: '標準規範',
+  thickness: '厚',
   width: '寬',
   length: '長',
-  note: '規範附註',
-  prediction: 'prediction',
-  upper: 'Upper Bound',
+  reg_sup: '規範附註',
+  predict_value: 'prediction',
+  max: 'Upper Bound',
   q1: 'Q1',
   mean: 'Mean',
   q3: 'Q3',
-  lower: 'Lower Bound'
+  min: 'Lower Bound'
 }]

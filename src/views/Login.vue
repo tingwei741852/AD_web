@@ -34,7 +34,7 @@
 </template>
 
 <script>
-// import axios from 'axios'
+import axios from 'axios'
 export default {
   data () {
     return {
@@ -56,20 +56,27 @@ export default {
     loginaction (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          // axios({
-          //   methods: 'POST',
-          //   url: 'http://192.168.50.135:8000/accounts/login_api/',
-          //   // url: 'http://192.168.50.135:8000/test',
-          //   data: {
-          //     // csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
-          //     username: this.account,
-          //     password: this.password
-          //   }
-          // })
-          //   .then((resp) => {
-          //     console.log(resp.data)
-          //   })
-          window.location.href = '/prediction'
+          axios({
+            method: 'POST',
+            url: 'http://192.168.50.135:8000/accounts/login_api/',
+            // url: 'http://192.168.50.135:8000/test',
+            data: {
+              // csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
+              username: this.form.account,
+              password: this.form.password
+            }
+          })
+            .then((resp) => {
+              console.log(resp.data)
+              if (resp.data.status === 'pass') {
+                window.location.href = '/prediction'
+              } else {
+                this.$alert('帳號或密碼錯誤', '登入錯誤', {
+                  confirmButtonText: '確定'
+                })
+              }
+            })
+            .catch((error) => console.log(error))
         }
       })
     }
