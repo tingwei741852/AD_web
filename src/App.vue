@@ -7,7 +7,7 @@
           <el-popover placement="top-start" width="150" trigger="click">
               <p class='user_title'>您好! 小翔</p>
               <ul class="UserList">
-                <li><i class="fas fa-sign-out-alt" style="margin-right:15px;"></i>登出</li>
+                <li @click="logout()"><i class="fas fa-sign-out-alt" style="margin-right:15px;" ></i>登出</li>
               </ul>
               <div class="avator" slot="reference"><i class="fas fa-user-circle fa-2x"></i></div>
             </el-popover>
@@ -35,6 +35,30 @@
   </div>
 </template>
 
+<script>
+import axios from 'axios'
+export default {
+  methods: {
+    logout () {
+      console.log('aa')
+      axios({
+        method: 'POST',
+        url: 'http://192.168.50.135:8000/accounts/logout_api/'
+      })
+        .then((resp) => {
+          if (resp.data.status === 'notpass') {
+            window.location.href = '/'
+          } else {
+            this.$alert('登出失敗', '登出錯誤', {
+              confirmButtonText: '確定'
+            })
+          }
+        })
+        .catch((error) => console.log(error))
+    }
+  }
+}
+</script>
 <style lang="scss">
   @font-face {
     font-family: custom-sans-serif;
