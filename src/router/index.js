@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import index from '../views/loginaidc.vue'
+import index from '../views/Prediction_ROM.vue'
+import axios from 'axios'
 
 Vue.use(VueRouter)
 
@@ -11,9 +12,19 @@ const routes = [
     component: index
   },
   {
-    path: '/prediction',
-    name: 'Prediction',
-    component: () => import(/* webpackChunkName: "about" */ '../views/Prediction.vue')
+    path: '/login',
+    name: 'Login',
+    component: () => import(/* webpackChunkName: "about" */ '../views/loginaidc.vue')
+  },
+  {
+    path: '/prediction_rom',
+    name: 'Prediction_ROM',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Prediction_ROM.vue')
+  },
+  {
+    path: '/prediction_hour',
+    name: 'Prediction_Hour',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Prediction_Hour.vue')
   },
   {
     path: '/setting',
@@ -29,6 +40,44 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  // var isLogin = true
+  // 檢查是否登入
+  axios({
+    method: 'POST',
+    url: 'http://192.168.50.135:8000/accounts/checklogin_api/'
+  })
+    .then((resp) => {
+      if (resp.data.status === 'pass') {
+        next()
+        if (to.path === '/login') {
+          next('/')
+        }
+      } else {
+        if (to.path !== '/login') {
+          next('/login')
+        } else {
+          next()
+        }
+      }
+    })
+    .catch((error) => console.log(error))
+
+  // if (isLogin) {
+  //   next()
+  //   if (to.path === '/login') {
+  //     next('/')
+  //   }
+  // } else {
+  //   console.log('not')
+  //   if (to.path !== '/login') {
+  //     next('/login')
+  //   } else {
+  //     next()
+  //   }
+  // }
 })
 
 export default router

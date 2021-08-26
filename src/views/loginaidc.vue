@@ -67,7 +67,7 @@ export default {
             .then((resp) => {
               console.log(resp.data)
               if (resp.data.status === 'pass') {
-                window.location.href = '/prediction'
+                window.location.href = '/Prediction_ROM'
               } else {
                 this.$alert('帳號或密碼錯誤', '登入錯誤', {
                   confirmButtonText: '確定'

@@ -2,18 +2,18 @@
   <div class="prediction">
     <div class="page_title">
       <h2 class="title_text" style="margin-top:15px;">報價預測</h2>
-      <div class="title_line"></div>
+      <!-- <div class="title_line"></div> -->
     </div>
     <div class="btn_block">
       <div class="upload_btn">
         <el-upload class="upload-demo" action="#" :on-change="handleChange" accept=".xls, .xlsx" :auto-upload="false"
-          :show-file-list="true" :file-list="fileList" :multiple="false">
+          :show-file-list="true" :file-list="fileList">
           <el-button type="primary" :loading="upload_loading">檔案上傳</el-button>
           <!-- <div slot="tip" class="el-upload__tip">只能上傳文件，且不超过500kb</div> -->
         </el-upload>
       </div>
       <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
-      <el-button type="primary" @click="PredictionAction">開始預測</el-button>
+      <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
       <span style="margin-left:12px; vertical-align: top;display: inline-block;">
         <excel-export :sheet="sheet" filename="Prediction_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
       </span>
@@ -29,10 +29,11 @@
             </el-option>
           </el-select>
           </div>
-        <el-table :row-style="{height: '80px'}" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width: 100%" v-loading="loading" element-loading-text="計算中...">
+        <el-table :header-cell-style="{ background: '#f5f7fa' }" :cell-style="predictstyle" :row-style="{height: '70px'}" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width: 100%" v-loading="loading" element-loading-text="計算中..." border>
           <el-table-column
             type="index"
-            :index="indexMethod">
+            :index="indexMethod"
+            label="#">
           </el-table-column>
           <af-table-column v-for="item in column_model" :key="item.prop" :prop="item.prop" :label="item.label" :fixed="item.fixed">
           </af-table-column>
@@ -46,7 +47,7 @@
           </el-pagination>
         </div>
       </el-card>
-      <div v-if="false">
+      <!-- <div v-if="false">
       <h4 style="margin-top:15px;">預測盒鬚圖</h4>
         <el-divider></el-divider>
         <el-card class="box-card">
@@ -58,7 +59,7 @@
           :legendKey="'category'"
           ></box-chart>
         </el-card>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -69,15 +70,13 @@ import * as data from './data/prediction_column'
 // import FileSaver from 'file-saver'
 import xlsx from 'xlsx'
 import * as BoxData from './data/Box_data'
-import Box from './chart/Box'
 import { ExcelExport } from 'pikaz-excel-js'
 import axios from 'axios'
 
 var FileSaver = require('file-saver')
 export default {
   components: {
-    ExcelExport,
-    'box-chart': Box
+    ExcelExport
   },
   data () {
     return {
@@ -122,6 +121,9 @@ export default {
   },
   methods: {
     async handleChange (file, fileList) {
+      if (fileList.length > 1) {
+        fileList.shift()
+      }
       this.upload_loading = true
       var data = file.raw
       const excel = await this.readFile(data)
@@ -250,6 +252,13 @@ export default {
         })
         .catch((error) => console.log(error))
       this.ChartShow = true
+    },
+    predictstyle (row, column, rowIndex, columnIndex) {
+      if (row.column.property === 'predict_value') {
+        if (row.row.predict_value > row.row.max || row.row.predict_value < row.row.min) {
+          return 'color:#DF5E5E'
+        }
+      }
     }
   }
 }

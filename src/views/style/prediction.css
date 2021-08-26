@@ -11,7 +11,7 @@
   font-weight: bold;
   margin-left: auto;
   margin-right: auto;
-  font-size: 35px;
+  font-size: 30px;
 }
 .page_title {
   text-align: center;
@@ -43,3 +43,7 @@
 .el-button{
   vertical-align: top;
 }
+/* .el-table .cell {
+  white-space: nowrap;
+  width: fit-content;
+} */

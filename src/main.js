@@ -13,7 +13,9 @@ import locale from 'element-ui/lib/locale/lang/zh-TW'
 import AFTableColumn from 'af-table-column'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import ExTableColumn from 'ex-table-column'
 
+Vue.component(ExTableColumn.name, ExTableColumn)
 Vue.use(AFTableColumn)
 Vue.use(Antd)
 Vue.config.productionTip = false

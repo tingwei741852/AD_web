@@ -19,68 +19,181 @@ export const COLUMN_DATA = [{
   prop: 'length'
 }, {
   fixed: 'right',
-  label: 'Prediction',
+  label: '預測值',
   prop: 'predict_value'
 }, {
   fixed: 'right',
-  label: 'Max',
+  label: '單位',
+  prop: 'unit'
+}, {
+  fixed: 'right',
+  label: '最大值',
   prop: 'max'
-}, {
-  fixed: 'right',
-  label: 'Q1',
-  prop: 'q1'
-}, {
-  fixed: 'right',
-  label: 'Mean',
-  prop: 'mean'
 }, {
   fixed: 'right',
   label: 'Q3',
   prop: 'q3'
 }, {
   fixed: 'right',
-  label: 'Min',
+  label: '平均值',
+  prop: 'mean'
+}, {
+  fixed: 'right',
+  label: 'Q1',
+  prop: 'q1'
+}, {
+  fixed: 'right',
+  label: '最小值',
   prop: 'min'
 }]
 
-// export const COLUMN_KEY = ['category', 'material_id', 'name', 'name_en', 'Revision_Level', 'material', 'specification', 'thick', 'width', 'length', 'direction', 'note', 'PR_ITEM', 'qty', 'UNIT', 'WBS', 'PO_ITEM', 'price', 'measure', 'currency', 'rate', 'contract_date', 'delivery_date', 'delivery_way', 'supplier', 'statisical_delivery_date', 'long', 'prediction', 'upper', 'q1', 'mean', 'q3', 'lower']
-// export const COLUMN_CHINESE = [{
-//   category: '類別',
-//   material_id: '物料號碼',
-//   name: '短文／品名',
-//   name_en: '英文品名',
-//   Revision_Level: 'Revision Level',
-//   material: '標準材質',
-//   specification: '標準規範',
-//   thick: '厚',
-//   width: '寬',
-//   length: '長',
-//   direction: '晶粒方向',
-//   note: '規範附註',
-//   PR_ITEM: 'PR_ITEM',
-//   qty: '需求數量',
-//   UNIT: 'UNIT',
-//   WBS: 'WBS元素',
-//   PO_ITEM: 'PO_ITEM',
-//   price: '簽約單價',
-//   measure: '基礎計量單價',
-//   currency: '幣別',
-//   rate: '匯率',
-//   contract_date: '訂約日期',
-//   delivery_date: '交運日期',
-//   delivery_way: '交運方式',
-//   supplier: '供應商',
-//   statisical_delivery_date: '統計交貨日期',
-//   long: '長約',
-//   prediction: 'prediction',
-//   upper: 'Upper Bound',
-//   q1: 'Q1',
-//   mean: 'Mean',
-//   q3: 'Q3',
-//   lower: 'Lower Bound'
-// }]
+export const HOUR_OPTION_DATA = [{
+  label: '類別',
+  prop: 'category'
+}, {
+  label: '標準材質',
+  prop: 'std_mat'
+}, {
+  label: '標準規範',
+  prop: 'std_reg'
+}, {
+  label: '厚',
+  prop: 'thickness'
+}, {
+  label: '寬',
+  prop: 'width'
+}, {
+  label: '長',
+  prop: 'length'
+}, {
+  label: '預測值',
+  prop: 'predict_value'
+}, {
+  label: '一般件筆數',
+  prop: 'gen_count'
+}, {
+  label: '複雜件筆數',
+  prop: 'comp_count'
+}, {
+  label: '一般件最大值',
+  prop: 'gen_max'
+}, {
+  label: '一般件平均值',
+  prop: 'gen_mean'
+}, {
+  label: '複雜件最大值',
+  prop: 'comp_max'
+}, {
+  label: '複雜件平均值',
+  prop: 'comp_mean'
+}, {
+  label: '複雜件最小值',
+  prop: 'comp_min'
+}]
 
-export const COLUMN_KEY = ['category', 'std_mat', 'std_reg', 'thickness', 'width', 'length', 'reg_sup', 'predict_value', 'max', 'q1', 'mean', 'q3', 'min']
+export const HOURCOLUMN_DATA = [{
+  label: '類別',
+  prop: 'category',
+  key: 'category',
+  show: true
+}, {
+  label: '標準材質',
+  prop: 'std_mat',
+  key: 'std_mat',
+  show: true
+}, {
+  label: '標準規範',
+  prop: 'std_reg',
+  key: 'std_reg',
+  show: true
+},
+{
+  label: '材質群組',
+  prop: 'mat_group',
+  key: 'mat_group',
+  show: true
+}, {
+  label: '厚',
+  prop: 'thickness',
+  key: 'mat_group',
+  show: true
+}, {
+  label: '寬',
+  prop: 'width',
+  key: 'mat_group',
+  show: true
+}, {
+  label: '長',
+  prop: 'length',
+  key: 'mat_group',
+  show: true
+}, {
+  label: '預測值',
+  prop: 'predict_value',
+  key: 'mat_group',
+  show: true
+}, {
+  label: '一般件',
+  prop: 'mat_group',
+  key: 'mat_group',
+  show: true,
+  children: [
+    {
+      fixed: 'right',
+      label: '筆數',
+      prop: 'gen_count',
+      key: 'mat_group',
+      show: true
+    }, {
+      fixed: 'right',
+      label: '最大值',
+      prop: 'gen_max',
+      key: 'mat_group',
+      show: true
+    }, {
+      fixed: 'right',
+      label: '平均值',
+      prop: 'gen_mean',
+      key: 'mat_group',
+      show: true
+    }, {
+      fixed: 'right',
+      label: '最小值',
+      prop: 'gen_min',
+      key: 'mat_group',
+      show: true
+    }
+  ]
+},
+{
+  label: '複雜件',
+  show: true,
+  children: [
+    {
+      fixed: 'right',
+      label: '筆數',
+      prop: 'comp_count',
+      show: true
+    }, {
+      fixed: 'right',
+      label: '最大值',
+      prop: 'comp_max',
+      show: true
+    }, {
+      fixed: 'right',
+      label: '平均值',
+      prop: 'comp_mean',
+      show: true
+    }, {
+      fixed: 'right',
+      label: '最小值',
+      prop: 'comp_min',
+      show: true
+    }
+  ]
+}]
+
+export const COLUMN_KEY = ['category', 'std_mat', 'std_reg', 'thickness', 'width', 'length', 'reg_sup', 'predict_value', 'unit', 'max', 'q3', 'mean', 'q1', 'min']
 export const COLUMN_CHINESE = [{
   category: '類別',
   std_mat: '標準材質',
@@ -89,10 +202,23 @@ export const COLUMN_CHINESE = [{
   width: '寬',
   length: '長',
   reg_sup: '規範附註',
-  predict_value: 'prediction',
-  max: 'Upper Bound',
+  predict_value: '預測值',
+  unit: '單位',
+  min: 'Lower Bound',
   q1: 'Q1',
   mean: 'Mean',
   q3: 'Q3',
-  min: 'Lower Bound'
+  max: 'Upper Bound'
+}]
+
+export const HOUR_COLUMN_KEY = ['category', 'mat_group', 'std_mat', 'std_reg', 'thickness', 'width', 'length', 'reg_sup', 'predict_value', 'gen_count', 'gen_max', 'gen_mean', 'gen_min', 'comp_count', 'comp_max', 'comp_mean', 'comp_min']
+export const HOUR_COLUMN_CHINESE = [{
+  category: '類別',
+  mat_group: '製程類別',
+  std_mat: '標準材質',
+  std_reg: '標準規範',
+  thickness: '厚',
+  width: '寬',
+  length: '長',
+  reg_sup: '規範附註'
 }]

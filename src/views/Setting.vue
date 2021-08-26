@@ -72,7 +72,7 @@
 import * as data from './data/setting_column'
 import SettingData from './data/setting_data.json'
 import { ExcelExport } from 'pikaz-excel-js'
-import Editdialog from './MessageBox/EditMaterial'
+import Editdialog from './component/EditMaterial'
 
 export default {
   components: {

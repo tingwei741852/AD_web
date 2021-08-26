@@ -2,10 +2,10 @@
   <div id="app">
     <div id="nav">
       <div>
-        <router-link to="/"><i class="fas fa-search-dollar"></i>報價預測</router-link>
+        <router-link to="/"><img src="./views/static/images/logo.png" style="width:30px;padding-bottom:5px;padding-right:5px"> AIDC預測系統</router-link>
         <div class='avator'>
-          <el-popover placement="top-start" width="150" trigger="click">
-              <p class='user_title'>您好! 小翔</p>
+          <el-popover placement="top-start" width="150" trigger="hover">
+              <p class='user_title'>您好!</p>
               <ul class="UserList">
                 <li @click="logout()"><i class="fas fa-sign-out-alt" style="margin-right:15px;" ></i>登出</li>
               </ul>
@@ -13,21 +13,20 @@
             </el-popover>
         </div>
         <ul class='NavList' id="NavList">
-          <router-link to="/prediction"><li>
-            PREDICTION
-          </li></router-link>
-          <router-link to="/setting"><li>
-            SETTING
-          </li></router-link>
-          <!-- <li>
-            <el-popover placement="top-start" width="150" trigger="click">
-              <p class='user_title'>您好! 小翔</p>
-              <ul class="UserList">
-                <li><i class="fas fa-sign-out-alt" style="margin-right:15px;"></i>登出</li>
-              </ul>
-              <div class="avator" slot="reference"><i class="fas fa-user-circle fa-2x"></i></div>
-            </el-popover>
-          </li> -->
+            <router-link to="/setting"><li>
+              SETTING
+            </li></router-link>
+            <li>
+              <el-dropdown>
+                <span class="el-dropdown-link" style="font-weight:bold">
+                  PREDICTION
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                  <router-link to="/Prediction_ROM"><el-dropdown-item>ROM報價</el-dropdown-item></router-link>
+                  <router-link to="/Prediction_Hour"><el-dropdown-item>工時預測</el-dropdown-item></router-link>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </li>
         </ul>
       </div>
     </div>
@@ -90,7 +89,6 @@ export default {
     padding-right: 25px;
     background-color: #613F75;
     color: #ffffff;
-    font-size: 30px;
 
     a {
       font-weight: bold;
@@ -139,29 +137,27 @@ export default {
     font-weight: bold;
     font-size: 18px;
     padding-left: 12px;
+    padding-top: 12px;
   }
 
-  .UserList {
+  .UserList{
     padding: 0;
   }
-
   .UserList li {
     list-style-type: none;
     font-size: 15px;
     padding-top: 10px;
     padding-bottom: 10px;
-    padding-left: 12px;
+    padding-left: 10px;
     text-align: left;
     cursor: pointer;
     margin: 0;
     transition-duration: .2s;
   }
-
   .UserList li:hover {
     background: rgba(96, 62, 116, .1);
     color: rgb(96, 62, 116);
   }
-
   .el-popover {
     padding: 0 !important;
   }
