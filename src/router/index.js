@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import index from '../views/Prediction_ROM.vue'
-import axios from 'axios'
+import { userRequest } from '../axios.js'
 
 Vue.use(VueRouter)
 
@@ -37,7 +37,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: 'hash',
   base: process.env.BASE_URL,
   routes
 })
@@ -45,10 +45,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   // var isLogin = true
   // 檢查是否登入
-  axios({
-    method: 'POST',
-    url: 'http://192.168.50.135:8000/accounts/checklogin_api/'
-  })
+  userRequest.post('/accounts/checklogin_api/')
     .then((resp) => {
       if (resp.data.status === 'pass') {
         next()

@@ -71,7 +71,7 @@ import * as data from './data/prediction_column'
 import xlsx from 'xlsx'
 import * as BoxData from './data/Box_data'
 import { ExcelExport } from 'pikaz-excel-js'
-import axios from 'axios'
+import { userRequest } from '../axios.js'
 
 var FileSaver = require('file-saver')
 export default {
@@ -235,15 +235,9 @@ export default {
     },
     PredictionAction () {
       this.loading = true
-      axios({
-        method: 'POST',
-        url: 'http://192.168.50.135:8000/prediction_api',
-        responseType: 'json',
-        //  API要求的資料
-        data: {
-          start_predict: 'start_predict',
-          data: this.tableData
-        }
+      userRequest.post('/prediction_api', {
+        start_predict: 'start_predict',
+        data: this.tableData
       })
         .then((response) => {
           console.log(response.data)

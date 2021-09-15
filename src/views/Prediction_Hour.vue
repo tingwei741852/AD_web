@@ -69,7 +69,7 @@ import * as data from './data/prediction_column'
 import xlsx from 'xlsx'
 import * as BoxData from './data/Box_data'
 import { ExcelExport } from 'pikaz-excel-js'
-import axios from 'axios'
+import { userRequest } from '../axios.js'
 import TreeTable from './component/TreeTable'
 
 var FileSaver = require('file-saver')
@@ -120,31 +120,6 @@ export default {
       ]
       return output
     }
-    // column_model: function () {
-    //   const output = data.HOURCOLUMN_DATA
-    //   output.forEach(function (value) {
-    //     if ('children' in value) {
-    //       value.children.forEach(function (childrenval) {
-    //         console.log('child', childrenval)
-    //         if (childrenval.prop in this.option_model) {
-    //           childrenval.show = true
-    //         } else {
-    //           childrenval.show = false
-    //         }
-    //       })
-    //     } else {
-    //       console.log('not', value)
-    //       console.log(this.option_model)
-    //       if (value.prop in this.option_model) {
-    //         value.show = true
-    //       } else {
-    //         value.show = false
-    //       }
-    //     }
-    //   })
-    //   console.log(output)
-    //   return output
-    // }
   },
   methods: {
     async handleChange (file, fileList) {
@@ -277,15 +252,9 @@ export default {
     },
     PredictionAction () {
       this.loading = true
-      axios({
-        method: 'POST',
-        url: 'http://192.168.50.135:8000/work_hour_prediction_api',
-        responseType: 'json',
-        //  API要求的資料
-        data: {
-          start_predict: 'start_predict',
-          data: this.tableData
-        }
+      userRequest.post('/work_hour_prediction_api', {
+        start_predict: 'start_predict',
+        data: this.tableData
       })
         .then((response) => {
           console.log(response.data)

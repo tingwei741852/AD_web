@@ -110,22 +110,18 @@ export const HOURCOLUMN_DATA = [{
 {
   label: '材質群組',
   prop: 'mat_group',
-  key: 'mat_group',
   show: true
 }, {
   label: '厚',
   prop: 'thickness',
-  key: 'mat_group',
   show: true
 }, {
   label: '寬',
   prop: 'width',
-  key: 'mat_group',
   show: true
 }, {
   label: '長',
   prop: 'length',
-  key: 'mat_group',
   show: true
 }, {
   label: '預測值',
@@ -134,33 +130,27 @@ export const HOURCOLUMN_DATA = [{
   show: true
 }, {
   label: '一般件',
-  prop: 'mat_group',
-  key: 'mat_group',
   show: true,
   children: [
     {
       fixed: 'right',
       label: '筆數',
       prop: 'gen_count',
-      key: 'mat_group',
       show: true
     }, {
       fixed: 'right',
       label: '最大值',
       prop: 'gen_max',
-      key: 'mat_group',
       show: true
     }, {
       fixed: 'right',
       label: '平均值',
       prop: 'gen_mean',
-      key: 'mat_group',
       show: true
     }, {
       fixed: 'right',
       label: '最小值',
       prop: 'gen_min',
-      key: 'mat_group',
       show: true
     }
   ]

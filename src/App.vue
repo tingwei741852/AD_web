@@ -35,15 +35,12 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import axios from 'axios'
+import { userRequest } from './axios.js'
 export default {
   methods: {
     logout () {
-      console.log('aa')
-      axios({
-        method: 'POST',
-        url: 'http://192.168.50.135:8000/accounts/logout_api/'
-      })
+      userRequest.post('/accounts/logout_api/')
         .then((resp) => {
           if (resp.data.status === 'notpass') {
             window.location.href = '/'

@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { userRequest } from '../axios.js'
 export default {
   data () {
     return {
@@ -54,20 +54,14 @@ export default {
     loginaction (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          axios({
-            method: 'POST',
-            url: 'http://192.168.50.135:8000/accounts/login_api/',
-            // url: 'http://192.168.50.135:8000/test',
-            data: {
-              // csrfmiddlewaretoken: $("[name='csrfmiddlewaretoken']").val(),
-              username: this.form.account,
-              password: this.form.password
-            }
+          userRequest.post('/accounts/login_api/', {
+            username: this.form.account,
+            password: this.form.password
           })
             .then((resp) => {
               console.log(resp.data)
               if (resp.data.status === 'pass') {
-                window.location.href = '/Prediction_ROM'
+                window.location.href = '/'
               } else {
                 this.$alert('帳號或密碼錯誤', '登入錯誤', {
                   confirmButtonText: '確定'
