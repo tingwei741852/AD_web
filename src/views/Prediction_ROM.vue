@@ -235,7 +235,7 @@ export default {
     },
     PredictionAction () {
       this.loading = true
-      userRequest.post('/prediction_api', {
+      userRequest.post('/price_prediction_api', {
         start_predict: 'start_predict',
         data: this.tableData
       })
