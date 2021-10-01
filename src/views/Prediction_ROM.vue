@@ -12,6 +12,7 @@
           <!-- <div slot="tip" class="el-upload__tip">只能上傳文件，且不超过500kb</div> -->
         </el-upload>
       </div>
+      <el-button  type="primary" @click="dialogFormVisible=true">手動新增資料</el-button>
       <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
       <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
       <span style="margin-left:12px; vertical-align: top;display: inline-block;">
@@ -61,6 +62,9 @@
         </el-card>
       </div> -->
     </div>
+    <el-dialog title="新增待預測資料" :visible.sync="dialogFormVisible"  width="80%">
+      <insert-dialog :form="dialogform" :InsertFunction="InsertFunction" :VisibleFunction="VisibleFunction"  :options="insertoptions"></insert-dialog>
+    </el-dialog>
   </div>
 </template>
 
@@ -72,11 +76,13 @@ import xlsx from 'xlsx'
 import * as BoxData from './data/Box_data'
 import { ExcelExport } from 'pikaz-excel-js'
 import { userRequest } from '../axios.js'
+import Insertdialog from './component/InsertPredict'
 
 var FileSaver = require('file-saver')
 export default {
   components: {
-    ExcelExport
+    ExcelExport,
+    'insert-dialog': Insertdialog
   },
   data () {
     return {
@@ -96,7 +102,18 @@ export default {
         table: data.COLUMN_CHINESE,
         keys: data.COLUMN_KEY,
         sheetName: 'Sheet1'
-      }]
+      }],
+      dialogform: {
+        category: '',
+        std_mat: '',
+        std_reg: '',
+        thickness: '',
+        width: '',
+        length: '',
+        reg_sup: ''
+      },
+      dialogFormVisible: false,
+      insertoptions: { category: [], std_mat: [], std_reg: [] }
     }
   },
   computed: {
@@ -118,6 +135,37 @@ export default {
       ]
       return output
     }
+  },
+  watch: {
+    'dialogform.category': function (value) {
+      this.dialogform.std_mat = ''
+      this.dialogform.std_reg = ''
+      userRequest.post('/get_std_mat', {
+        category: value
+      })
+        .then((response) => {
+          this.insertoptions.std_mat = response.data
+        })
+        .catch((error) => console.log(error))
+    },
+    'dialogform.std_mat': function (value) {
+      this.dialogform.std_reg = ''
+      userRequest.post('/get_std_reg', {
+        category: this.dialogform.category,
+        std_mat: value
+      })
+        .then((response) => {
+          this.insertoptions.std_reg = response.data
+        })
+        .catch((error) => console.log(error))
+    }
+  },
+  mounted () {
+    userRequest.get('/get_category')
+      .then((response) => {
+        this.insertoptions.category = response.data
+      })
+      .catch((error) => console.log(error))
   },
   methods: {
     async handleChange (file, fileList) {
@@ -253,6 +301,25 @@ export default {
           return 'color:#DF5E5E'
         }
       }
+    },
+    VisibleFunction () {
+      this.dialogFormVisible = false
+    },
+    InsertFunction () {
+      this.tableData.push(this.dialogform)
+      this.dialogform = {
+        category: '',
+        std_mat: '',
+        std_reg: '',
+        thickness: '',
+        width: '',
+        length: '',
+        reg_sup: ''
+      }
+      this.dialogFormVisible = false
+    },
+    onClose () {
+      this.$emit('update:dialogVisible', false)
     }
   }
 }
