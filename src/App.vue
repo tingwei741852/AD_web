@@ -8,6 +8,7 @@
               <p class='user_title'>您好!</p>
               <ul class="UserList">
                 <li @click="logout()"><i class="fas fa-sign-out-alt" style="margin-right:15px;" ></i>登出</li>
+                <li @click="toback()"><i class="fas fa-table" style="margin-right:15px;" ></i>後台</li>
               </ul>
               <div class="avator" slot="reference"><i class="fas fa-user-circle fa-2x"></i></div>
             </el-popover>
@@ -36,7 +37,7 @@
 
 <script>
 // import axios from 'axios'
-import { userRequest } from './axios.js'
+import { userRequest, baseURL } from './axios.js'
 export default {
   methods: {
     logout () {
@@ -51,6 +52,9 @@ export default {
           }
         })
         .catch((error) => console.log(error))
+    },
+    toback () {
+      window.open(baseURL + '/admin/', '_blank')
     }
   }
 }

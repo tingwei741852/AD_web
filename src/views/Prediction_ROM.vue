@@ -7,13 +7,14 @@
     <div class="btn_block">
       <div class="upload_btn">
         <el-upload class="upload-demo" action="#" :on-change="handleChange" accept=".xls, .xlsx" :auto-upload="false"
-          :show-file-list="true" :file-list="fileList">
+          :show-file-list="false" :file-list="fileList">
           <el-button type="primary" :loading="upload_loading">檔案上傳</el-button>
           <!-- <div slot="tip" class="el-upload__tip">只能上傳文件，且不超过500kb</div> -->
         </el-upload>
       </div>
       <el-button  type="primary" @click="dialogFormVisible=true">手動新增資料</el-button>
       <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
+      <el-button :disabled="tableData.length<=0" type="primary" >資料檢查</el-button>
       <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
       <span style="margin-left:12px; vertical-align: top;display: inline-block;">
         <excel-export :sheet="sheet" filename="Prediction_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
@@ -24,17 +25,24 @@
     </div>
     <div class="table_block">
       <el-card class="box-card">
-        <div style="float:right;margin-bottom:15px">
-          <el-select value-key="prop" v-model="column_model" multiple collapse-tags  placeholder="請選擇顯示欄位">
-            <el-option v-for="item in column_option" :key="item.prop" :label="item.label" :value="item" :disabled="item.disabled">
-            </el-option>
-          </el-select>
+        <div style="margin-bottom:15px">
+          <span style="vertical-align: top;display: inline-block;">
+            <el-button  type="primary" @click="deleteselect">刪除選取資料</el-button>
+          </span>
+          <span style="vertical-align: top;display: inline-block;margin-left:15px">
+            <el-button  type="primary" @click="tableData=[]">刪除所有資料</el-button>
+          </span>
+           <span style="vertical-align: top;display: inline-block; float:right;">
+            <el-select value-key="prop" v-model="column_model" multiple collapse-tags  placeholder="請選擇顯示欄位">
+              <el-option v-for="item in column_option" :key="item.prop" :label="item.label" :value="item" :disabled="item.disabled">
+              </el-option>
+            </el-select>
+          </span>
           </div>
-        <el-table :header-cell-style="{ background: '#f5f7fa' }" :cell-style="predictstyle" :row-style="{height: '70px'}" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width: 100%" v-loading="loading" element-loading-text="計算中..." border>
+        <el-table :header-cell-style="{ background: '#f5f7fa' }" :cell-style="predictstyle" :row-style="{height: '70px'}" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width: 100%" v-loading="loading" element-loading-text="計算中..."  @selection-change="handleSelectionChange" border>
           <el-table-column
-            type="index"
-            :index="indexMethod"
-            label="#">
+          type="selection"
+          width="55">
           </el-table-column>
           <af-table-column v-for="item in column_model" :key="item.prop" :prop="item.prop" :label="item.label" :fixed="item.fixed">
           </af-table-column>
@@ -110,10 +118,14 @@ export default {
         thickness: '',
         width: '',
         length: '',
-        reg_sup: ''
+        reg_sup: '',
+        id: 0
       },
       dialogFormVisible: false,
-      insertoptions: { category: [], std_mat: [], std_reg: [] }
+      insertoptions: { category: [], std_mat: [], std_reg: [] },
+      tableSelection: [],
+      deletebtndisabled: true
+      // dataindex: 0
     }
   },
   computed: {
@@ -181,10 +193,16 @@ export default {
       // workbook.Sheets[workbook.SheetNames[0]] 获取当前上传的表格的信息,例如总共有几行几列啥的
       // data = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]).map(row => mapKeys(row, (value, key) => key.trim()))
       data = this.getDataRow(workbook.Sheets[workbook.SheetNames[0]])
+      data = data.slice(1)
+      console.log(data)
       const header = this.getHeaderRow(workbook.Sheets[workbook.SheetNames[0]])
-      this.tableData = data.slice(1)
+      data.forEach(function (value, index, array) {
+        array[index].id = index
+      })
+      console.log(data)
+      this.tableData = data
       // this.tableData = data
-      console.log(this.tableData)
+      // console.log(this.tableData)
       this.upload_loading = false
       this.column_option = header
     },
@@ -288,7 +306,7 @@ export default {
         data: this.tableData
       })
         .then((response) => {
-          console.log(response.data)
+          console.log('response', response.data)
           this.tableData = response.data
           this.loading = false
         })
@@ -307,6 +325,7 @@ export default {
     },
     InsertFunction () {
       this.tableData.push(this.dialogform)
+      var id = this.dialogform.id + 1
       this.dialogform = {
         category: '',
         std_mat: '',
@@ -314,12 +333,41 @@ export default {
         thickness: '',
         width: '',
         length: '',
-        reg_sup: ''
+        reg_sup: '',
+        id: id
       }
+      this.dataindex += 1
       this.dialogFormVisible = false
     },
     onClose () {
       this.$emit('update:dialogVisible', false)
+    },
+    handleSelectionChange (val) {
+      this.tableSelection = val
+      console.log(this.tableData)
+      if (val.length > 0) {
+        this.deletebtndisabled = false
+      } else {
+        this.deletebtndisabled = true
+      }
+      console.log(this.tableSelection)
+    },
+    deleteselect () {
+      if (this.tableSelection.length === 0) {
+        this.$alert('請勾選育刪除資料', '提醒', {
+          confirmButtonText: '確定'
+        })
+      }
+      var index = 0
+      this.tableData.forEach(tablevalue => {
+        console.log(this.tableSelection)
+        this.tableSelection.forEach(selectvalue => {
+          if (tablevalue.id === selectvalue.id) {
+            this.tableData.splice(index, 1)
+          }
+        })
+        index += 1
+      })
     }
   }
 }
