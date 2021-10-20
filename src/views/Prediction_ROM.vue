@@ -39,10 +39,15 @@
             </el-select>
           </span>
           </div>
+          <div class='filterblock'>
+          資料篩選
           <el-form ref="filterform" :model="filterform" :inline="true">
             <el-form-item label="類別">
               <!-- <el-input v-model="filterform.category" placeholder="請選擇顯示類別"></el-input> -->
-               <el-select v-model="filterform.category" filterable clearable  placeholder="請選擇顯示類別">
+              <!-- {{filterform.category}} -->
+               <el-select @change='changeSelect("category")' v-model="filterform.category" multiple collapse-tags filterable  placeholder="請選擇顯示類別">
+                <!-- <el-option label='全選' value='' @click.native='selectAll("category")'></el-option> -->
+                 <el-checkbox v-model="filtercheck.category" @change='selectAll("category")'>全選</el-checkbox>
                 <el-option
                   v-for="item in filteroption.category"
                   :key="item"
@@ -53,7 +58,9 @@
             </el-form-item>
             <el-form-item label="標準材質">
               <!-- <el-input v-model="filterform.std_mat" placeholder="請選擇標準材質"></el-input> -->
-              <el-select v-model="filterform.std_mat" filterable clearable  placeholder="請選擇顯示標準材質">
+              <el-select @change='changeSelect("std_mat")' v-model="filterform.std_mat" multiple collapse-tags filterable  placeholder="請選擇顯示標準材質">
+                <!-- <el-option label='全選' value='' @click.native='selectAll("std_mat")'></el-option> -->
+               <el-checkbox v-model="filtercheck.std_mat" @change='selectAll("std_mat")'>全選</el-checkbox>
                 <el-option
                   v-for="item in filteroption.std_mat"
                   :key="item"
@@ -64,7 +71,9 @@
             </el-form-item>
             <el-form-item label="標準規範">
               <!-- <el-input v-model="filterform.std_reg" placeholder="請選擇標準規範"></el-input> -->
-              <el-select  v-model="filterform.std_reg" filterable clearable  placeholder="請選擇顯示標準規範">
+              <el-select @change='changeSelect("std_reg")'  v-model="filterform.std_reg"  multiple collapse-tags filterable  placeholder="請選擇顯示標準規範">
+                <!-- <el-option label='全選' value='' @click.native='selectAll("std_reg")'></el-option> -->
+                <el-checkbox v-model="filtercheck.std_reg" @change='selectAll("std_reg")'>全選</el-checkbox>
                 <el-option
                   v-for="item in filteroption.std_reg"
                   :key="item"
@@ -75,7 +84,9 @@
             </el-form-item>
             <el-form-item label="厚">
               <!-- <el-input v-model="filterform.std_reg" placeholder="請選擇標準規範"></el-input> -->
-              <el-select  v-model="filterform.thickness" filterable clearable  placeholder="請選擇顯示厚度">
+              <el-select @change='changeSelect("thickness")'  v-model="filterform.thickness"  multiple collapse-tags filterable  placeholder="請選擇顯示厚度">
+                <!-- <el-option label='全選' value='' @click.native='selectAll("thickness")'></el-option> -->
+                <el-checkbox v-model="filtercheck.thickness" @change='selectAll("thickness")'>全選</el-checkbox>
                 <el-option
                   v-for="item in filteroption.thickness"
                   :key="item"
@@ -85,7 +96,9 @@
               </el-select>
             </el-form-item>
             <el-form-item label="寬">
-              <el-select  v-model="filterform.width" filterable clearable  placeholder="請選擇顯示寬度">
+              <el-select @change='changeSelect("width")'  v-model="filterform.width"  multiple collapse-tags filterable  placeholder="請選擇顯示寬度">
+                 <!-- <el-option label='全選' value='' @click.native='selectAll("width")'></el-option> -->
+                <el-checkbox v-model="filtercheck.width" @change='selectAll("width")'>全選</el-checkbox>
                 <el-option
                   v-for="item in filteroption.width"
                   :key="item"
@@ -95,7 +108,9 @@
               </el-select>
             </el-form-item>
              <el-form-item label="長">
-              <el-select  v-model="filterform.length" filterable clearable  placeholder="請選擇顯示長度">
+              <el-select @change='changeSelect("length")'  v-model="filterform.length"  multiple collapse-tags filterable  placeholder="請選擇顯示長度">
+                 <!-- <el-option label='全選' value='' @click.native='selectAll("length")'></el-option> -->
+                <el-checkbox v-model="filtercheck.length" @change='selectAll("length")'>全選</el-checkbox>
                 <el-option
                   v-for="item in filteroption.length"
                   :key="item"
@@ -105,11 +120,17 @@
               </el-select>
             </el-form-item>
           </el-form>
+        </div>
         <el-table  :data="displaytabledata"  :header-cell-style="{ background: '#f5f7fa' }" :cell-style="predictstyle" :row-style="{height: '70px'}" style="width: 100%" v-loading="loading" element-loading-text="計算中..."  @selection-change="handleSelectionChange">
           <el-table-column
           type="selection"
           width="55">
           </el-table-column>
+          <!-- <af-table-column label="測試">
+            <template slot="header">
+              <i class="el-icon-arrow-down"></i>
+            </template>
+          </af-table-column> -->
           <af-table-column v-for="item in column_model" :key="item.prop" :prop="item.prop" :label="item.label" :fixed="item.fixed">
           </af-table-column>
         </el-table>
@@ -191,8 +212,9 @@ export default {
       insertoptions: { category: [], std_mat: [], std_reg: [] },
       tableSelection: [],
       deletebtndisabled: true,
-      filterform: { category: '', std_mat: '', std_reg: '', thickness: '', width: '', length: '' },
-      filteroption: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] }
+      filterform: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
+      filteroption: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
+      filtercheck: { category: true, std_mat: true, std_reg: true, thickness: true, width: true, length: true }
       // dataindex: 0
     }
   },
@@ -216,11 +238,11 @@ export default {
       return output
     },
     displaytabledata: function () {
-      console.log(data, (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.filterDataBywidth(this.filterDataBylength(this.tableData))))))).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize))
-      return (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.tableData))))).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize)
+      // console.log(data, (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.filterDataBywidth(this.filterDataBylength(this.tableData))))))).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize))
+      return (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.filterDataBywidth(this.filterDataBylength(this.tableData))))))).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize)
     },
     filtertabledata: function () {
-      return (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.tableData)))))
+      return (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.filterDataBywidth(this.filterDataBylength(this.tableData)))))))
     }
   },
   watch: {
@@ -246,7 +268,7 @@ export default {
         })
         .catch((error) => console.log(error))
     },
-    filtertabledata: function (value) {
+    tableData: function (value) {
       const setcategory = new Set()
       const setstdmat = new Set()
       const setstdreg = new Set()
@@ -267,6 +289,12 @@ export default {
       this.filteroption.thickness = Array.from(setthickness).sort()
       this.filteroption.width = Array.from(setwidth).sort()
       this.filteroption.length = Array.from(setlength).sort()
+      this.filterform.category = Array.from(setcategory).sort()
+      this.filterform.std_reg = Array.from(setstdreg).sort()
+      this.filterform.std_mat = Array.from(setstdmat).sort()
+      this.filterform.thickness = Array.from(setthickness).sort()
+      this.filterform.width = Array.from(setwidth).sort()
+      this.filterform.length = Array.from(setlength).sort()
       // return Array.from(s)
     }
   },
@@ -467,29 +495,61 @@ export default {
         index += 1
       })
     },
-    TabledataFilter () {
-      return this.tableData.filter(
-        data => (!this.filterform.category) || (this.data.category.toLowerCase().includes(this.filterform.category.toLowerCase()))
-      ).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize)
-    },
+    // TabledataFilter () {
+    //   return this.tableData.filter(
+    //     data => (!this.filterform.category) || (this.data.category.toLowerCase().includes(this.filterform.category.toLowerCase()))
+    //   ).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize)
+    // },
     filterDataByCategory: function (data) {
-      return data.filter(data => !data.category.indexOf(this.filterform.category))
+      return data.filter(data => this.filterform.category.some(el => data.category === el))
     },
     filterDataByStdMat: function (data) {
-      return data.filter(data => !data.std_mat.indexOf(this.filterform.std_mat))
+      return data.filter(data => this.filterform.std_mat.some(el => data.std_mat === el))
     },
     filterDataByStdReg: function (data) {
-      return data.filter(data => data.std_reg.toLowerCase().includes(this.filterform.std_reg.toLowerCase()))
+      return data.filter(data => this.filterform.std_reg.some(el => data.std_reg === el))
     },
     filterDataBythickness: function (data) {
-      return data.filter(data => data.thickness.toLowerCase().includes(this.filterform.thickness.toLowerCase()))
+      return data.filter(data => this.filterform.thickness.some(el => data.thickness === el))
     },
     filterDataBywidth: function (data) {
-      return data.filter(data => data.width === this.filterform.width)
+      return data.filter(data => this.filterform.width.some(el => data.width === el))
     },
     filterDataBylength: function (data) {
-      return data.filter(data => data.length === this.filterform.length)
+      return data.filter(data => this.filterform.length.some(el => data.length === el))
+    },
+    selectAll (prop) {
+      this.filterform[prop] = []
+      if (this.filtercheck[prop]) {
+        this.filteroption[prop].map((item) => {
+          this.filterform[prop].push(item)
+        })
+      } else {
+        this.filterform[prop] = []
+      }
+    },
+    changeSelect (prop) {
+      if (this.filterform[prop].length === this.filteroption[prop].length) {
+        this.filtercheck[prop] = true
+      } else {
+        this.filtercheck[prop] = false
+      }
     }
+    // selectAll (prop) {
+    //   console.log('filteroption', this.filteroption[prop])
+    //   console.log('filterform', this.filterform[prop])
+    //   if (this.filterform[prop].length < this.filteroption[prop].length) {
+    //     this.filterform[prop] = []
+    //     this.filteroption[prop].map((item) => {
+    //       this.filterform[prop].push(item)
+    //     })
+    //     this.filterform[prop].unshift('')
+    //   } else {
+    //     console.log('filterform1', this.filterform[prop])
+    //     this.filterform[prop] = []
+    //     console.log('filterform2', this.filterform[prop])
+    //   }
+    // }
   }
 }
 
