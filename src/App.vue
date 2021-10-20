@@ -14,20 +14,26 @@
             </el-popover>
         </div>
         <ul class='NavList' id="NavList">
-            <router-link to="/setting"><li>
+            <!-- <router-link to="/setting"><li>
               SETTING
+            </li></router-link> -->
+            <router-link to="/Prediction_Hour"><li>
+              工時預測
             </li></router-link>
-            <li>
+            <router-link to="/Prediction_ROM"><li>
+              報價預測
+            </li></router-link>
+            <!-- <li>
               <el-dropdown>
                 <span class="el-dropdown-link" style="font-weight:bold">
-                  PREDICTION
+                  報價預測
                 </span>
                 <el-dropdown-menu slot="dropdown">
                   <router-link to="/Prediction_ROM"><el-dropdown-item>ROM報價</el-dropdown-item></router-link>
                   <router-link to="/Prediction_Hour"><el-dropdown-item>工時預測</el-dropdown-item></router-link>
                 </el-dropdown-menu>
               </el-dropdown>
-            </li>
+            </li> -->
         </ul>
       </div>
     </div>

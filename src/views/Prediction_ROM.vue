@@ -39,7 +39,73 @@
             </el-select>
           </span>
           </div>
-        <el-table :header-cell-style="{ background: '#f5f7fa' }" :cell-style="predictstyle" :row-style="{height: '70px'}" :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)" style="width: 100%" v-loading="loading" element-loading-text="計算中..."  @selection-change="handleSelectionChange" border>
+          <el-form ref="filterform" :model="filterform" :inline="true">
+            <el-form-item label="類別">
+              <!-- <el-input v-model="filterform.category" placeholder="請選擇顯示類別"></el-input> -->
+               <el-select v-model="filterform.category" filterable clearable  placeholder="請選擇顯示類別">
+                <el-option
+                  v-for="item in filteroption.category"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="標準材質">
+              <!-- <el-input v-model="filterform.std_mat" placeholder="請選擇標準材質"></el-input> -->
+              <el-select v-model="filterform.std_mat" filterable clearable  placeholder="請選擇顯示標準材質">
+                <el-option
+                  v-for="item in filteroption.std_mat"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="標準規範">
+              <!-- <el-input v-model="filterform.std_reg" placeholder="請選擇標準規範"></el-input> -->
+              <el-select  v-model="filterform.std_reg" filterable clearable  placeholder="請選擇顯示標準規範">
+                <el-option
+                  v-for="item in filteroption.std_reg"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="厚">
+              <!-- <el-input v-model="filterform.std_reg" placeholder="請選擇標準規範"></el-input> -->
+              <el-select  v-model="filterform.thickness" filterable clearable  placeholder="請選擇顯示厚度">
+                <el-option
+                  v-for="item in filteroption.thickness"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="寬">
+              <el-select  v-model="filterform.width" filterable clearable  placeholder="請選擇顯示寬度">
+                <el-option
+                  v-for="item in filteroption.width"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+             <el-form-item label="長">
+              <el-select  v-model="filterform.length" filterable clearable  placeholder="請選擇顯示長度">
+                <el-option
+                  v-for="item in filteroption.length"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+        <el-table  :data="displaytabledata"  :header-cell-style="{ background: '#f5f7fa' }" :cell-style="predictstyle" :row-style="{height: '70px'}" style="width: 100%" v-loading="loading" element-loading-text="計算中..."  @selection-change="handleSelectionChange">
           <el-table-column
           type="selection"
           width="55">
@@ -51,7 +117,7 @@
           <el-pagination
             background
             layout="prev, pager, next"
-            :total="tableData.length"
+            :total="filtertabledata.length"
             @current-change="current_change">
           </el-pagination>
         </div>
@@ -124,7 +190,9 @@ export default {
       dialogFormVisible: false,
       insertoptions: { category: [], std_mat: [], std_reg: [] },
       tableSelection: [],
-      deletebtndisabled: true
+      deletebtndisabled: true,
+      filterform: { category: '', std_mat: '', std_reg: '', thickness: '', width: '', length: '' },
+      filteroption: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] }
       // dataindex: 0
     }
   },
@@ -146,13 +214,20 @@ export default {
         }
       ]
       return output
+    },
+    displaytabledata: function () {
+      console.log(data, (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.filterDataBywidth(this.filterDataBylength(this.tableData))))))).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize))
+      return (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.tableData))))).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize)
+    },
+    filtertabledata: function () {
+      return (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.tableData)))))
     }
   },
   watch: {
     'dialogform.category': function (value) {
       this.dialogform.std_mat = ''
       this.dialogform.std_reg = ''
-      userRequest.post('/get_std_mat', {
+      userRequest.post('/get_std_mat/', {
         category: value
       })
         .then((response) => {
@@ -162,7 +237,7 @@ export default {
     },
     'dialogform.std_mat': function (value) {
       this.dialogform.std_reg = ''
-      userRequest.post('/get_std_reg', {
+      userRequest.post('/get_std_reg/', {
         category: this.dialogform.category,
         std_mat: value
       })
@@ -170,10 +245,33 @@ export default {
           this.insertoptions.std_reg = response.data
         })
         .catch((error) => console.log(error))
+    },
+    filtertabledata: function (value) {
+      const setcategory = new Set()
+      const setstdmat = new Set()
+      const setstdreg = new Set()
+      const setthickness = new Set()
+      const setwidth = new Set()
+      const setlength = new Set()
+      value.forEach(element => {
+        setcategory.add(element.category)
+        setstdmat.add(element.std_mat)
+        setstdreg.add(element.std_reg)
+        setthickness.add(element.thickness)
+        setwidth.add(element.width)
+        setlength.add(element.length)
+      })
+      this.filteroption.category = Array.from(setcategory).sort()
+      this.filteroption.std_reg = Array.from(setstdreg).sort()
+      this.filteroption.std_mat = Array.from(setstdmat).sort()
+      this.filteroption.thickness = Array.from(setthickness).sort()
+      this.filteroption.width = Array.from(setwidth).sort()
+      this.filteroption.length = Array.from(setlength).sort()
+      // return Array.from(s)
     }
   },
   mounted () {
-    userRequest.get('/get_category')
+    userRequest.get('/get_category/')
       .then((response) => {
         this.insertoptions.category = response.data
       })
@@ -301,7 +399,7 @@ export default {
     },
     PredictionAction () {
       this.loading = true
-      userRequest.post('/price_prediction_api', {
+      userRequest.post('/price_prediction_api/', {
         start_predict: 'start_predict',
         data: this.tableData
       })
@@ -368,6 +466,29 @@ export default {
         })
         index += 1
       })
+    },
+    TabledataFilter () {
+      return this.tableData.filter(
+        data => (!this.filterform.category) || (this.data.category.toLowerCase().includes(this.filterform.category.toLowerCase()))
+      ).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize)
+    },
+    filterDataByCategory: function (data) {
+      return data.filter(data => !data.category.indexOf(this.filterform.category))
+    },
+    filterDataByStdMat: function (data) {
+      return data.filter(data => !data.std_mat.indexOf(this.filterform.std_mat))
+    },
+    filterDataByStdReg: function (data) {
+      return data.filter(data => data.std_reg.toLowerCase().includes(this.filterform.std_reg.toLowerCase()))
+    },
+    filterDataBythickness: function (data) {
+      return data.filter(data => data.thickness.toLowerCase().includes(this.filterform.thickness.toLowerCase()))
+    },
+    filterDataBywidth: function (data) {
+      return data.filter(data => data.width === this.filterform.width)
+    },
+    filterDataBylength: function (data) {
+      return data.filter(data => data.length === this.filterform.length)
     }
   }
 }
