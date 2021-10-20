@@ -13,6 +13,7 @@
         </el-upload>
       </div>
       <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
+      <el-button :disabled="tableData.length<=0" type="primary" >資料檢查</el-button>
       <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
       <span style="margin-left:12px; vertical-align: top;display: inline-block;">
         <excel-export :sheet="sheet" filename="PredictionHour_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
@@ -29,9 +30,91 @@
             </el-option>
           </el-select>
           </div> -->
+          <div class='filterblock'>
+          資料篩選
+          <el-form ref="filterform" :model="filterform" :inline="true">
+            <el-form-item label="類別">
+              <!-- <el-input v-model="filterform.category" placeholder="請選擇顯示類別"></el-input> -->
+              <!-- {{filterform.category}} -->
+               <el-select @change='changeSelect("category")' v-model="filterform.category" multiple collapse-tags filterable  placeholder="請選擇顯示類別">
+                <!-- <el-option label='全選' value='' @click.native='selectAll("category")'></el-option> -->
+                 <el-checkbox v-model="filtercheck.category" @change='selectAll("category")'>全選</el-checkbox>
+                <el-option
+                  v-for="item in filteroption.category"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="標準材質">
+              <!-- <el-input v-model="filterform.std_mat" placeholder="請選擇標準材質"></el-input> -->
+              <el-select @change='changeSelect("std_mat")' v-model="filterform.std_mat" multiple collapse-tags filterable  placeholder="請選擇顯示標準材質">
+                <!-- <el-option label='全選' value='' @click.native='selectAll("std_mat")'></el-option> -->
+               <el-checkbox v-model="filtercheck.std_mat" @change='selectAll("std_mat")'>全選</el-checkbox>
+                <el-option
+                  v-for="item in filteroption.std_mat"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="標準規範">
+              <!-- <el-input v-model="filterform.std_reg" placeholder="請選擇標準規範"></el-input> -->
+              <el-select @change='changeSelect("std_reg")'  v-model="filterform.std_reg"  multiple collapse-tags filterable  placeholder="請選擇顯示標準規範">
+                <!-- <el-option label='全選' value='' @click.native='selectAll("std_reg")'></el-option> -->
+                <el-checkbox v-model="filtercheck.std_reg" @change='selectAll("std_reg")'>全選</el-checkbox>
+                <el-option
+                  v-for="item in filteroption.std_reg"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="厚">
+              <!-- <el-input v-model="filterform.std_reg" placeholder="請選擇標準規範"></el-input> -->
+              <el-select @change='changeSelect("thickness")'  v-model="filterform.thickness"  multiple collapse-tags filterable  placeholder="請選擇顯示厚度">
+                <!-- <el-option label='全選' value='' @click.native='selectAll("thickness")'></el-option> -->
+                <el-checkbox v-model="filtercheck.thickness" @change='selectAll("thickness")'>全選</el-checkbox>
+                <el-option
+                  v-for="item in filteroption.thickness"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="寬">
+              <el-select @change='changeSelect("width")'  v-model="filterform.width"  multiple collapse-tags filterable  placeholder="請選擇顯示寬度">
+                 <!-- <el-option label='全選' value='' @click.native='selectAll("width")'></el-option> -->
+                <el-checkbox v-model="filtercheck.width" @change='selectAll("width")'>全選</el-checkbox>
+                <el-option
+                  v-for="item in filteroption.width"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+             <el-form-item label="長">
+              <el-select @change='changeSelect("length")'  v-model="filterform.length"  multiple collapse-tags filterable  placeholder="請選擇顯示長度">
+                 <!-- <el-option label='全選' value='' @click.native='selectAll("length")'></el-option> -->
+                <el-checkbox v-model="filtercheck.length" @change='selectAll("length")'>全選</el-checkbox>
+                <el-option
+                  v-for="item in filteroption.length"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-form>
+        </div>
            <TreeTable
               :col="column_model"
-              :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+              :data="displaytabledata"
               :loading="loading"
               :show="tableshow"
               :cellstyle="predictstyle">
@@ -40,7 +123,7 @@
           <el-pagination
             background
             layout="prev, pager, next"
-            :total="tableData.length"
+            :total="filtertabledata.length"
             @current-change="current_change">
           </el-pagination>
         </div>
@@ -98,7 +181,11 @@ export default {
         table: data.HOUR_COLUMN_CHINESE,
         keys: data.HOUR_COLUMN_KEY.slice(0, 8),
         sheetName: 'Sheet1'
-      }]
+      }],
+      excelstyle: [],
+      filterform: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
+      filteroption: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
+      filtercheck: { category: true, std_mat: true, std_reg: true, thickness: true, width: true, length: true }
     }
   },
   computed: {
@@ -115,10 +202,69 @@ export default {
           tHeader: cn,
           table: this.tableData,
           keys: ck,
-          sheetName: 'Sheet1'
+          sheetName: 'Sheet1',
+          cellStyle: this.excelstyle
         }
       ]
       return output
+    },
+    displaytabledata: function () {
+      // console.log(data, (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.filterDataBywidth(this.filterDataBylength(this.tableData))))))).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize))
+      return (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.filterDataBywidth(this.filterDataBylength(this.tableData))))))).slice((this.currentPage - 1) * this.pagesize, this.currentPage * this.pagesize)
+    },
+    filtertabledata: function () {
+      return (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.filterDataBywidth(this.filterDataBylength(this.tableData)))))))
+    }
+  },
+  watch: {
+    tableData: function (value) {
+      const setcategory = new Set()
+      const setstdmat = new Set()
+      const setstdreg = new Set()
+      const setthickness = new Set()
+      const setwidth = new Set()
+      const setlength = new Set()
+      const stylearray = []
+      value.forEach(function (element, index, array) {
+        setcategory.add(element.category)
+        setstdmat.add(element.std_mat)
+        setstdreg.add(element.std_reg)
+        setthickness.add(element.thickness)
+        setwidth.add(element.width)
+        setlength.add(element.length)
+        if (element.predict_value > element.max || element.predict_value < element.min) {
+          const styleobj = { cell: 'I' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
+          stylearray.push(styleobj)
+          console.log(stylearray)
+          // this.excelstyle.append(styleobj)
+        }
+        if (element.gen_count > 0) {
+          if ((element.predict_value > element.gen_max || element.predict_value < element.gen_min)) {
+            const styleobj = { cell: 'G' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
+            stylearray.push(styleobj)
+          }
+        }
+        if (element.comp_count > 0) {
+          if ((element.predict_value > element.comp_max || element.predict_value < element.comp_min)) {
+            const styleobj = { cell: 'G' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
+            stylearray.push(styleobj)
+          }
+        }
+      })
+      this.excelstyle = stylearray
+      this.filteroption.category = Array.from(setcategory).sort()
+      this.filteroption.std_reg = Array.from(setstdreg).sort()
+      this.filteroption.std_mat = Array.from(setstdmat).sort()
+      this.filteroption.thickness = Array.from(setthickness).sort()
+      this.filteroption.width = Array.from(setwidth).sort()
+      this.filteroption.length = Array.from(setlength).sort()
+      this.filterform.category = Array.from(setcategory).sort()
+      this.filterform.std_reg = Array.from(setstdreg).sort()
+      this.filterform.std_mat = Array.from(setstdmat).sort()
+      this.filterform.thickness = Array.from(setthickness).sort()
+      this.filterform.width = Array.from(setwidth).sort()
+      this.filterform.length = Array.from(setlength).sort()
+      // return Array.from(s)
     }
   },
   methods: {
@@ -252,7 +398,7 @@ export default {
     },
     PredictionAction () {
       this.loading = true
-      userRequest.post('/work_hour_prediction_api', {
+      userRequest.post('/work_hour_prediction_api/', {
         start_predict: 'start_predict',
         data: this.tableData
       })
@@ -297,10 +443,54 @@ export default {
     },
     predictstyle (row, column, rowIndex, columnIndex) {
       if (row.column.property === 'predict_value') {
-        console.log(row.row)
-        if (row.row.predict_value > row.row.comp_max || row.row.predict_value < row.row.comp_min || row.row.predict_value > row.row.gen_max || row.row.predict_value < row.row.gen_min) {
-          return 'color:#DF5E5E'
+        if (row.row.gen_count > 0) {
+          if ((row.row.predict_value > row.row.gen_max || row.row.predict_value < row.row.gen_min)) {
+            return 'color:#DF5E5E'
+          }
         }
+        if (row.row.comp_count > 0) {
+          if ((row.row.predict_value > row.row.comp_max || row.row.predict_value < row.row.comp_min)) {
+            return 'color:#DF5E5E'
+          }
+        }
+        // if ( (row.row.predict_value > row.row.comp_max || row.row.predict_value < row.row.comp_min) || (row.row.predict_value > row.row.gen_max || row.row.predict_value < row.row.gen_min)) {
+        //   return 'color:#DF5E5E'
+        // }
+      }
+    },
+    filterDataByCategory: function (data) {
+      return data.filter(data => this.filterform.category.some(el => data.category === el))
+    },
+    filterDataByStdMat: function (data) {
+      return data.filter(data => this.filterform.std_mat.some(el => data.std_mat === el))
+    },
+    filterDataByStdReg: function (data) {
+      return data.filter(data => this.filterform.std_reg.some(el => data.std_reg === el))
+    },
+    filterDataBythickness: function (data) {
+      return data.filter(data => this.filterform.thickness.some(el => data.thickness === el))
+    },
+    filterDataBywidth: function (data) {
+      return data.filter(data => this.filterform.width.some(el => data.width === el))
+    },
+    filterDataBylength: function (data) {
+      return data.filter(data => this.filterform.length.some(el => data.length === el))
+    },
+    selectAll (prop) {
+      this.filterform[prop] = []
+      if (this.filtercheck[prop]) {
+        this.filteroption[prop].map((item) => {
+          this.filterform[prop].push(item)
+        })
+      } else {
+        this.filterform[prop] = []
+      }
+    },
+    changeSelect (prop) {
+      if (this.filterform[prop].length === this.filteroption[prop].length) {
+        this.filtercheck[prop] = true
+      } else {
+        this.filtercheck[prop] = false
       }
     }
   }

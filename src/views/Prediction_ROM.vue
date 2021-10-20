@@ -198,6 +198,7 @@ export default {
         keys: data.COLUMN_KEY,
         sheetName: 'Sheet1'
       }],
+      excelstyle: [],
       dialogform: {
         category: '',
         std_mat: '',
@@ -232,7 +233,8 @@ export default {
           tHeader: cn,
           table: this.tableData,
           keys: ck,
-          sheetName: 'Sheet1'
+          sheetName: 'Sheet1',
+          cellStyle: this.excelstyle
         }
       ]
       return output
@@ -269,20 +271,29 @@ export default {
         .catch((error) => console.log(error))
     },
     tableData: function (value) {
+      console.log('excelstyle', this.excelstyle)
       const setcategory = new Set()
       const setstdmat = new Set()
       const setstdreg = new Set()
       const setthickness = new Set()
       const setwidth = new Set()
       const setlength = new Set()
-      value.forEach(element => {
+      const stylearray = []
+      value.forEach(function (element, index, array) {
         setcategory.add(element.category)
         setstdmat.add(element.std_mat)
         setstdreg.add(element.std_reg)
         setthickness.add(element.thickness)
         setwidth.add(element.width)
         setlength.add(element.length)
+        if (element.predict_value > element.max || element.predict_value < element.min) {
+          const styleobj = { cell: 'I' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
+          stylearray.push(styleobj)
+          console.log(stylearray)
+          // this.excelstyle.append(styleobj)
+        }
       })
+      this.excelstyle = stylearray
       this.filteroption.category = Array.from(setcategory).sort()
       this.filteroption.std_reg = Array.from(setstdreg).sort()
       this.filteroption.std_mat = Array.from(setstdmat).sort()
@@ -432,16 +443,17 @@ export default {
         data: this.tableData
       })
         .then((response) => {
-          console.log('response', response.data)
+          // console.log('response', response.data)
           this.tableData = response.data
           this.loading = false
         })
         .catch((error) => console.log(error))
       this.ChartShow = true
     },
-    predictstyle (row, column, rowIndex, columnIndex) {
+    predictstyle (row) {
       if (row.column.property === 'predict_value') {
         if (row.row.predict_value > row.row.max || row.row.predict_value < row.row.min) {
+          // this.excelstyle.push(styleobj)
           return 'color:#DF5E5E'
         }
       }
