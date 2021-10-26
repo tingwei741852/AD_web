@@ -14,14 +14,42 @@
       </div>
       <el-button  type="primary" @click="dialogFormVisible=true">手動新增資料</el-button>
       <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
-      <el-button :disabled="tableData.length<=0" type="primary" >資料檢查</el-button>
-      <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
-      <span style="margin-left:12px; vertical-align: top;display: inline-block;">
-        <excel-export :sheet="sheet" filename="Prediction_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
-      </span>
       <span style="margin-left:12px; vertical-align: top;display: inline-block;">
         <excel-export :sheet="sheet_demo" filename="Prediction_Demo"><el-button type="primary">下載樣板</el-button></excel-export>
       </span>
+      <span style="margin-left:12px; vertical-align: top;display: inline-block;">
+        <excel-export :sheet="sheet" filename="Prediction_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
+      </span>
+      <span style="margin-left:12px;">
+        <el-button :disabled="tableData.length<=0" type="primary" >資料檢查</el-button>
+      </span>
+      <span style="margin-left:12px;">
+        <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
+      </span>
+    </div>
+    <div style="margin-top:15px;vertical-align:bottom">
+      <!-- <div style="display: inline-block;vertical-align:bottom">
+      <el-button :disabled="tableData.length<=0" type="primary" >資料檢查</el-button>
+      </div> -->
+      <!-- <div style="display: inline-block;vertical-align:bottom;margin-left:10px;">
+        <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
+      </div> -->
+      <div style="display: inline-block;margin-left:10px; width:180px">
+        <div>統計數據年份範圍:</div>
+        <el-select v-model="time_period" placeholder="請選擇預測年份範圍">
+          <el-option
+            key=""
+            label="全部"
+            value="">
+          </el-option>
+          <el-option
+            v-for="item in 10"
+            :key="item"
+            :label="item"
+            :value="item">
+          </el-option>
+        </el-select>
+      </div>
     </div>
     <div class="table_block">
       <el-card class="box-card">
@@ -215,7 +243,8 @@ export default {
       deletebtndisabled: true,
       filterform: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
       filteroption: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
-      filtercheck: { category: true, std_mat: true, std_reg: true, thickness: true, width: true, length: true }
+      filtercheck: { category: true, std_mat: true, std_reg: true, thickness: true, width: true, length: true },
+      time_period: ''
       // dataindex: 0
     }
   },
@@ -440,6 +469,7 @@ export default {
       this.loading = true
       userRequest.post('/price_prediction_api/', {
         start_predict: 'start_predict',
+        time_period: this.time_period,
         data: this.tableData
       })
         .then((response) => {
