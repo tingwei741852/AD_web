@@ -13,7 +13,7 @@
         </el-upload>
       </div>
       <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
-      <el-button :disabled="tableData.length<=0" type="primary" >資料檢查</el-button>
+      <el-button :disabled="tableData.length<=0" type="primary"  @click="DataCheck()" >資料檢查</el-button>
       <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
       <span style="margin-left:12px; vertical-align: top;display: inline-block;">
         <excel-export :sheet="sheet" filename="PredictionHour_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
@@ -24,12 +24,14 @@
     </div>
     <div class="table_block">
       <el-card class="box-card">
-        <!-- <div style="float:right;margin-bottom:15px">
-          <el-select value-key="prop" v-model="option_model" multiple collapse-tags  placeholder="請選擇顯示欄位" @change="SelectChange">
-            <el-option v-for="item in column_option" :key="item.prop" :label="item.label" :value="item.prop" :disabled="item.disabled">
-            </el-option>
-          </el-select>
-          </div> -->
+        <div style="margin-bottom:15px">
+          <span style="vertical-align: top;display: inline-block;">
+            <el-button  type="primary" @click="deleteselect">刪除選取資料</el-button>
+          </span>
+          <span style="vertical-align: top;display: inline-block;margin-left:15px">
+            <el-button  type="primary" @click="tableData=[]">刪除所有資料</el-button>
+          </span>
+          </div>
           <div class='filterblock'>
           資料篩選
           <el-form ref="filterform" :model="filterform" :inline="true">
@@ -112,12 +114,17 @@
             </el-form-item>
           </el-form>
         </div>
+        <!-- {{tableSelection}} -->
            <TreeTable
               :col="column_model"
               :data="displaytabledata"
               :loading="loading"
               :show="tableshow"
-              :cellstyle="predictstyle">
+              :cellstyle="predictstyle"
+              :error_msg="error_msg"
+              :pagesize="pagesize"
+              :currentPage="currentPage"
+              :handleSelectionChange="handleSelectionChange">
            </TreeTable>
         <div style="text-align:center; margin-top:15px;">
           <el-pagination
@@ -182,17 +189,20 @@ export default {
         keys: data.HOUR_COLUMN_KEY.slice(0, 8),
         sheetName: 'Sheet1'
       }],
+      tableSelection: [],
+      deletebtndisabled: true,
       excelstyle: [],
       filterform: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
       filteroption: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
-      filtercheck: { category: true, std_mat: true, std_reg: true, thickness: true, width: true, length: true }
+      filtercheck: { category: true, std_mat: true, std_reg: true, thickness: true, width: true, length: true },
+      error_msg: data.HOUR_ERROR_MSG
     }
   },
   computed: {
     sheet: function () {
       var cn = []
       var ck = []
-      this.column_option.forEach(function (value) {
+      data.HOUR_OPTION_DATA.forEach(function (value) {
         cn.push(value.label)
         ck.push(value.prop)
       })
@@ -218,6 +228,8 @@ export default {
   },
   watch: {
     tableData: function (value) {
+      this.tableshow = false
+      this.column_option[3].show = false
       const setcategory = new Set()
       const setstdmat = new Set()
       const setstdreg = new Set()
@@ -251,6 +263,9 @@ export default {
           }
         }
       })
+      if (Array.from(setcategory).indexOf('E')) {
+        this.column_model[3].show = true
+      }
       this.excelstyle = stylearray
       this.filteroption.category = Array.from(setcategory).sort()
       this.filteroption.std_reg = Array.from(setstdreg).sort()
@@ -264,6 +279,9 @@ export default {
       this.filterform.thickness = Array.from(setthickness).sort()
       this.filterform.width = Array.from(setwidth).sort()
       this.filterform.length = Array.from(setlength).sort()
+      this.$nextTick(function () {
+        this.tableshow = true
+      })
       // return Array.from(s)
     }
   },
@@ -281,6 +299,9 @@ export default {
       // workbook.Sheets[workbook.SheetNames[0]] 获取当前上传的表格的信息,例如总共有几行几列啥的
       // data = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]).map(row => mapKeys(row, (value, key) => key.trim()))
       data = this.getDataRow(workbook.Sheets[workbook.SheetNames[0]])
+      data.forEach(function (value, index, array) {
+        array[index].id = index
+      })
       // const header = this.getHeaderRow(workbook.Sheets[workbook.SheetNames[0]])
       data.forEach(function (element) {
         element.predict_value = '-'
@@ -438,7 +459,7 @@ export default {
         }
       })
       console.log(output)
-      this.column_model = output
+      // this.column_model = output
       this.tableshow = true
     },
     predictstyle (row, column, rowIndex, columnIndex) {
@@ -492,6 +513,56 @@ export default {
       } else {
         this.filtercheck[prop] = false
       }
+    },
+    handleSelectionChange (val) {
+      this.tableSelection = val
+      console.log(this.tableData)
+      if (val.length > 0) {
+        this.deletebtndisabled = false
+      } else {
+        this.deletebtndisabled = true
+      }
+      console.log(this.tableSelection)
+    },
+    deleteselect () {
+      if (this.tableSelection.length === 0) {
+        this.$alert('請勾選欲刪除資料', '提醒', {
+          confirmButtonText: '確定'
+        })
+      }
+      var index = 0
+      this.tableData.forEach(tablevalue => {
+        console.log(this.tableSelection)
+        this.tableSelection.forEach(selectvalue => {
+          if (tablevalue.id === selectvalue.id) {
+            this.tableData.splice(index, 1)
+          }
+        })
+        index += 1
+      })
+      this.tableSelection = []
+    },
+    DataCheck () {
+      this.loading = true
+      userRequest.post('/workhour_data_check_api/', {
+        data: this.tableData
+      })
+        .then((response) => {
+          // console.log('response', response.data)
+          this.data_flag = response.data.flag
+          this.error_msg = response.data
+          this.loading = false
+          if (response.data.flag === true) {
+            this.$alert('資料檢查通過，可開始進行預測', '資料檢查', {
+              confirmButtonText: '確定'
+            })
+          } else {
+            this.$alert('輸入欄位有誤，請修正後再進行檢查', '資料檢查', {
+              confirmButtonText: '確定'
+            })
+          }
+        })
+        .catch((error) => console.log(error))
     }
   }
 }

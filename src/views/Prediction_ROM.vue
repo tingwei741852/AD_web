@@ -21,10 +21,10 @@
         <excel-export :sheet="sheet" filename="Prediction_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
       </span>
       <span style="margin-left:12px;">
-        <el-button :disabled="tableData.length<=0" type="primary" >資料檢查</el-button>
+        <el-button :disabled="tableData.length<=0" type="primary" @click="DataCheck()">資料檢查</el-button>
       </span>
       <span style="margin-left:12px;">
-        <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
+        <el-button :disabled="!data_flag" type="primary" @click="PredictionAction">開始預測</el-button>
       </span>
     </div>
     <div style="margin-top:15px;vertical-align:bottom">
@@ -149,6 +149,7 @@
             </el-form-item>
           </el-form>
         </div>
+        <!-- {{error_msg}} -->
         <el-table  :data="displaytabledata"  :header-cell-style="{ background: '#f5f7fa' }" :cell-style="predictstyle" :row-style="{height: '70px'}" style="width: 100%" v-loading="loading" element-loading-text="計算中..."  @selection-change="handleSelectionChange">
           <el-table-column
           type="selection"
@@ -159,7 +160,17 @@
               <i class="el-icon-arrow-down"></i>
             </template>
           </af-table-column> -->
-          <af-table-column v-for="item in column_model" :key="item.prop" :prop="item.prop" :label="item.label" :fixed="item.fixed">
+          <af-table-column v-for="item in column_option.filter(item => item.show == true)" :key="item.prop" :prop="item.prop" :label="item.label" :fixed="item.fixed">
+            <template slot-scope="scope">
+              {{scope.row[item.prop]}}
+              <!-- <el-tooltip class="item" effect="dark" content="Right Center 提示文字" placement="right" v-show="error_msg['error_message'][item.prop]['item'].indexOf(scope.$index) > 0"> -->
+                <span v-if="error_msg['error_message'][item.prop]" style="color:#DF5E5E">
+                  <!-- {{error_msg['error_message'][item.prop]['item'].indexOf(scope.$index)}} -->
+                  <!-- {{(pagesize*(currentPage-1))+(scope.$index)}} -->
+                  <el-tooltip class="item" effect="dark" :content="error_msg['error_message'][item.prop]['msg']" placement="right" v-show="error_msg['error_message'][item.prop]['item'].indexOf((pagesize*(currentPage-1))+(scope.$index)) >= 0">
+                <i class="el-icon-warning"></i>
+               </el-tooltip></span>
+            </template>
           </af-table-column>
         </el-table>
         <div style="text-align:center; margin-top:15px;">
@@ -244,7 +255,9 @@ export default {
       filterform: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
       filteroption: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
       filtercheck: { category: true, std_mat: true, std_reg: true, thickness: true, width: true, length: true },
-      time_period: ''
+      time_period: '',
+      data_flag: false,
+      error_msg: data.PRICE_ERROR_MSG
       // dataindex: 0
     }
   },
@@ -252,7 +265,7 @@ export default {
     sheet: function () {
       var cn = []
       var ck = []
-      this.column_option.forEach(function (value) {
+      data.COLUMN_DATA.forEach(function (value) {
         cn.push(value.label)
         ck.push(value.prop)
       })
@@ -300,7 +313,8 @@ export default {
         .catch((error) => console.log(error))
     },
     tableData: function (value) {
-      console.log('excelstyle', this.excelstyle)
+      // console.log(this.column_option)
+      this.column_option[3].show = false
       const setcategory = new Set()
       const setstdmat = new Set()
       const setstdreg = new Set()
@@ -316,12 +330,15 @@ export default {
         setwidth.add(element.width)
         setlength.add(element.length)
         if (element.predict_value > element.max || element.predict_value < element.min) {
-          const styleobj = { cell: 'I' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
+          const styleobj = { cell: 'G' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
           stylearray.push(styleobj)
           console.log(stylearray)
           // this.excelstyle.append(styleobj)
         }
       })
+      if (Array.from(setcategory).indexOf('E')) {
+        this.column_option[3].show = true
+      }
       this.excelstyle = stylearray
       this.filteroption.category = Array.from(setcategory).sort()
       this.filteroption.std_reg = Array.from(setstdreg).sort()
@@ -335,7 +352,8 @@ export default {
       this.filterform.thickness = Array.from(setthickness).sort()
       this.filterform.width = Array.from(setwidth).sort()
       this.filterform.length = Array.from(setlength).sort()
-      // return Array.from(s)
+      this.error_msg = data.PRICE_ERROR_MSG
+      this.data_flag = false
     }
   },
   mounted () {
@@ -361,7 +379,7 @@ export default {
       data = this.getDataRow(workbook.Sheets[workbook.SheetNames[0]])
       data = data.slice(1)
       console.log(data)
-      const header = this.getHeaderRow(workbook.Sheets[workbook.SheetNames[0]])
+      // const header = this.getHeaderRow(workbook.Sheets[workbook.SheetNames[0]])
       data.forEach(function (value, index, array) {
         array[index].id = index
       })
@@ -370,7 +388,7 @@ export default {
       // this.tableData = data
       // console.log(this.tableData)
       this.upload_loading = false
-      this.column_option = header
+      // this.column_option = header
     },
     readFile (file) {
       return new Promise((resolve, reject) => {
@@ -522,7 +540,7 @@ export default {
     },
     deleteselect () {
       if (this.tableSelection.length === 0) {
-        this.$alert('請勾選育刪除資料', '提醒', {
+        this.$alert('請勾選欲刪除資料', '提醒', {
           confirmButtonText: '確定'
         })
       }
@@ -576,22 +594,29 @@ export default {
       } else {
         this.filtercheck[prop] = false
       }
+    },
+    DataCheck () {
+      this.loading = true
+      userRequest.post('/price_data_check_api/', {
+        data: this.tableData
+      })
+        .then((response) => {
+          // console.log('response', response.data)
+          this.data_flag = response.data.flag
+          this.error_msg = response.data
+          this.loading = false
+          if (response.data.flag === true) {
+            this.$alert('資料檢查通過，可開始進行預測', '資料檢查', {
+              confirmButtonText: '確定'
+            })
+          } else {
+            this.$alert('輸入欄位有誤，請修正後再進行檢查', '資料檢查', {
+              confirmButtonText: '確定'
+            })
+          }
+        })
+        .catch((error) => console.log(error))
     }
-    // selectAll (prop) {
-    //   console.log('filteroption', this.filteroption[prop])
-    //   console.log('filterform', this.filterform[prop])
-    //   if (this.filterform[prop].length < this.filteroption[prop].length) {
-    //     this.filterform[prop] = []
-    //     this.filteroption[prop].map((item) => {
-    //       this.filterform[prop].push(item)
-    //     })
-    //     this.filterform[prop].unshift('')
-    //   } else {
-    //     console.log('filterform1', this.filterform[prop])
-    //     this.filterform[prop] = []
-    //     console.log('filterform2', this.filterform[prop])
-    //   }
-    // }
   }
 }
 
