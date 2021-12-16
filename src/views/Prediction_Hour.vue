@@ -12,15 +12,32 @@
           <!-- <div slot="tip" class="el-upload__tip">只能上傳文件，且不超过500kb</div> -->
         </el-upload>
       </div>
+      <el-button  type="primary" @click="dialogFormVisible=true">手動新增資料</el-button>
       <!-- <el-button type="primary" :disabled="tableData.length <= 0">檔案檢查</el-button> -->
-      <el-button :disabled="tableData.length<=0" type="primary"  @click="DataCheck()" >資料檢查</el-button>
-      <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
+      <span style="margin-left:12px;vertical-align: top;display: inline-block;">
+        <excel-export :sheet="sheet_demo" filename="PredictionHour_Demo"><el-button type="primary">下載樣板</el-button></excel-export>
+      </span>
       <span style="margin-left:12px; vertical-align: top;display: inline-block;">
         <excel-export :sheet="sheet" filename="PredictionHour_File"><el-button type="primary" :disabled="!ChartShow">下載結果</el-button></excel-export>
       </span>
-      <span style="margin-left:12px; vertical-align: top;display: inline-block;">
-        <excel-export :sheet="sheet_demo" filename="PredictionHour_Demo"><el-button type="primary">下載樣板</el-button></excel-export>
-      </span>
+      <el-button style="margin-left:12px; vertical-align: top;display: inline-block;" :disabled="tableData.length<=0" type="primary"  @click="DataCheck()" >資料檢查</el-button>
+      <el-button :disabled="!data_flag" type="primary" @click="PredictionAction">開始預測</el-button>
+    </div>
+    <div style="margin-top:15px;vertical-align:bottom">
+      <!-- <div style="display: inline-block;vertical-align:bottom">
+      <el-button :disabled="tableData.length<=0" type="primary" >資料檢查</el-button>
+      </div> -->
+      <!-- <div style="display: inline-block;vertical-align:bottom;margin-left:10px;">
+        <el-button :disabled="tableData.length<=0" type="primary" @click="PredictionAction">開始預測</el-button>
+      </div> -->
+      <div class = "errordatarow"  v-show="errordatarow.length > 0" @click="error_row_detail = true">
+        <div>錯誤資料筆數:</div>
+        {{errordatarow}}
+      </div>
+      <div style="display: inline-block;margin-left:10px; width:180px" v-show="errordatarow.length > 0">
+        <div>有錯誤資料的頁數:</div>
+        {{errordatapage}}
+      </div>
     </div>
     <div class="table_block">
       <el-card class="box-card">
@@ -149,6 +166,28 @@
         </el-card>
       </div> -->
     </div>
+    <el-dialog title="新增待預測資料" :visible.sync="dialogFormVisible"  width="80%">
+      <insert-dialog :form="dialogform" :InsertFunction="InsertFunction" :VisibleFunction="VisibleFunction"  :options="insertoptions"></insert-dialog>
+    </el-dialog>
+    <el-dialog title="錯誤筆數詳細資訊" :visible.sync="error_row_detail"  width="80%">
+      <el-table :data="error_row_tableData">
+        <el-table-column
+        prop="row"
+        label="錯誤筆數">
+        </el-table-column>
+        <el-table-column
+        prop="excel_row"
+        label="Excel顯示錯誤筆數">
+        </el-table-column>
+        <el-table-column
+        prop="reason"
+        label="錯誤原因">
+        </el-table-column>
+      </el-table>
+     <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="error_row_detail = false">確 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -161,12 +200,15 @@ import * as BoxData from './data/Box_data'
 import { ExcelExport } from 'pikaz-excel-js'
 import { userRequest } from '../axios.js'
 import TreeTable from './component/TreeTable'
+import Insertdialog from './component/InsertHour'
+// import func from 'vue-editor-bridge'
 
 var FileSaver = require('file-saver')
 export default {
   components: {
     ExcelExport,
-    TreeTable
+    TreeTable,
+    'insert-dialog': Insertdialog
   },
   data () {
     return {
@@ -183,19 +225,38 @@ export default {
       ChartShow: false,
       loading: false,
       tableshow: true,
+      data_flag: false,
       sheet_demo: [{
-        tHeader: data.HOUR_COLUMN_KEY.slice(0, 8),
+        tHeader: data.HOUR_COLUMN_KEY,
         table: data.HOUR_COLUMN_CHINESE,
-        keys: data.HOUR_COLUMN_KEY.slice(0, 8),
+        keys: data.HOUR_COLUMN_KEY,
         sheetName: 'Sheet1'
       }],
       tableSelection: [],
       deletebtndisabled: true,
       excelstyle: [],
+      dialogform: {
+        category: '',
+        std_mat: '',
+        std_reg: '',
+        thickness: '',
+        width: '',
+        length: '',
+        reg_sup: '',
+        mat_group: '',
+        machine_category: '',
+        process_machine: '',
+        id: 0
+      },
+      dialogFormVisible: false,
+      insertoptions: { category: [], std_mat: [], std_reg: [], mat_group: [{ value: 'S' }, { value: 'M' }], machine_category: [], process_machine: [] },
       filterform: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
       filteroption: { category: [], std_mat: [], std_reg: [], thickness: [], width: [], length: [] },
       filtercheck: { category: true, std_mat: true, std_reg: true, thickness: true, width: true, length: true },
-      error_msg: data.HOUR_ERROR_MSG
+      error_msg: data.HOUR_ERROR_MSG,
+      error_row_detail: false,
+      error_row_tableData: [],
+      errordatarow: []
     }
   },
   computed: {
@@ -224,9 +285,98 @@ export default {
     },
     filtertabledata: function () {
       return (this.filterDataByCategory(this.filterDataByStdMat(this.filterDataByStdReg(this.filterDataBythickness(this.filterDataBywidth(this.filterDataBylength(this.tableData)))))))
+    },
+    errordatapage: function () {
+      var error_page_array = this.errordatarow
+      var errordatarow = []
+      for (var key in error_page_array) {
+        var value = Math.floor(error_page_array[key] / this.pagesize) + 1
+        if (errordatarow.indexOf(value) === -1) {
+          errordatarow.push(value)
+        }
+      }
+      errordatarow.sort(function (a, b) {
+        return a - b
+      })
+      return errordatarow
     }
   },
   watch: {
+    'dialogform.mat_group': function (value) {
+      this.dialogform.category = ''
+      this.dialogform.std_mat = ''
+      this.dialogform.std_reg = ''
+      userRequest.get('/get_hour_category/', {
+        mat_group: value
+      })
+        .then((response) => {
+          this.insertoptions.category = response.data
+        })
+        .catch((error) => console.log(error))
+      if (value === 'M') {
+        userRequest.post('/get_machine_category/')
+          .then((response) => {
+            this.insertoptions.machine_category = response.data
+          })
+          .catch((error) => console.log(error))
+      }
+    },
+    'dialogform.machine_category': function (value) {
+      this.dialogform.process_machine = ''
+      userRequest.post('/get_process_machine/', {
+        machine_category: value
+      })
+        .then((response) => {
+          this.insertoptions.process_machine = response.data
+        })
+        .catch((error) => console.log(error))
+    },
+    'dialogform.category': function (value) {
+      this.dialogform.std_mat = ''
+      this.dialogform.std_reg = ''
+      userRequest.post('/get_hour_std_mat/', {
+        mat_group: this.dialogform.mat_group,
+        category: value
+      })
+        .then((response) => {
+          this.insertoptions.std_mat = response.data
+        })
+        .catch((error) => console.log(error))
+    },
+    'dialogform.std_mat': function (value) {
+      this.dialogform.std_reg = ''
+      userRequest.post('/get_hour_std_reg/', {
+        mat_group: this.dialogform.mat_group,
+        category: this.dialogform.category,
+        std_mat: value
+      })
+        .then((response) => {
+          this.insertoptions.std_reg = response.data
+        })
+        .catch((error) => console.log(error))
+    },
+    error_msg: function (value) {
+      var error_array = value.error_message
+      var errordatarow = []
+      var errortabledatarow = []
+      for (var key in error_array) {
+        error_array[key].item.forEach(function (value, index, array) {
+          if (errordatarow.indexOf(value) === -1) {
+            errordatarow.push(value + 1)
+          }
+          var errortabledatarow_ele = { row: value + 1, excel_row: value + 3, reason: error_array[key].msg }
+          errortabledatarow.push(errortabledatarow_ele)
+        })
+      }
+      errordatarow.sort(function (a, b) {
+        return a - b
+      })
+      errortabledatarow.sort(function (a, b) {
+        return a - b
+      })
+      this.error_row_tableData = errortabledatarow
+      this.errordatarow = errordatarow
+    },
     tableData: function (value) {
       this.tableshow = false
       this.column_option[3].show = false
@@ -252,13 +402,13 @@ export default {
         }
         if (element.gen_count > 0) {
           if ((element.predict_value > element.gen_max || element.predict_value < element.gen_min)) {
-            const styleobj = { cell: 'G' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
+            const styleobj = { cell: 'I' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
             stylearray.push(styleobj)
           }
         }
         if (element.comp_count > 0) {
           if ((element.predict_value > element.comp_max || element.predict_value < element.comp_min)) {
-            const styleobj = { cell: 'G' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
+            const styleobj = { cell: 'I' + (index + 2), font: { color: { rgb: 'DF5E5E' } } }
             stylearray.push(styleobj)
           }
         }
@@ -284,6 +434,13 @@ export default {
       })
       // return Array.from(s)
     }
+  },
+  mounted () {
+    userRequest.get('/get_category/')
+      .then((response) => {
+        this.insertoptions.category = response.data
+      })
+      .catch((error) => console.log(error))
   },
   methods: {
     async handleChange (file, fileList) {
@@ -478,6 +635,25 @@ export default {
         //   return 'color:#DF5E5E'
         // }
       }
+    },
+    VisibleFunction () {
+      this.dialogFormVisible = false
+    },
+    InsertFunction () {
+      this.tableData.push(this.dialogform)
+      var id = this.dialogform.id + 1
+      this.dialogform = {
+        category: '',
+        std_mat: '',
+        std_reg: '',
+        thickness: '',
+        width: '',
+        length: '',
+        reg_sup: '',
+        id: id
+      }
+      this.dataindex += 1
+      this.dialogFormVisible = false
     },
     filterDataByCategory: function (data) {
       return data.filter(data => this.filterform.category.some(el => data.category === el))

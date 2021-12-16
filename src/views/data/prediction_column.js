@@ -62,6 +62,14 @@ export const COLUMN_DATA = [{
   label: '最小值',
   prop: 'min',
   show: true
+}, {
+  label: '模型',
+  prop: 'model',
+  show: true
+}, {
+  label: 'MAPE',
+  prop: 'model_performance',
+  show: true
 }]
 // 報價error_msg
 export const PRICE_ERROR_MSG = {
@@ -98,6 +106,12 @@ export const HOUR_OPTION_DATA = [{
   label: '標準規範',
   prop: 'std_reg'
 }, {
+  label: '加工機台',
+  prop: 'process_machine'
+}, {
+  label: '機台分類',
+  prop: 'machine_category'
+}, {
   label: '厚',
   prop: 'thickness'
 }, {
@@ -130,6 +144,12 @@ export const HOUR_OPTION_DATA = [{
 }, {
   label: '複雜件最小值',
   prop: 'comp_min'
+}, {
+  label: '模型',
+  prop: 'model'
+}, {
+  label: 'MAPE',
+  prop: 'model_performance'
 }]
 
 // 工時error_msg
@@ -181,6 +201,14 @@ export const HOURCOLUMN_DATA = [{
   prop: 'mat_group',
   show: true
 }, {
+  label: '加工機台',
+  prop: 'process_machine',
+  show: true
+}, {
+  label: '機台分類',
+  prop: 'machine_category',
+  show: true
+}, {
   label: '厚',
   prop: 'thickness',
   show: true
@@ -250,6 +278,14 @@ export const HOURCOLUMN_DATA = [{
       show: true
     }
   ]
+}, {
+  label: '模型',
+  prop: 'model',
+  show: true
+}, {
+  label: 'MAPE',
+  prop: 'model_performance',
+  show: true
 }]
 
 export const HOURCOLUMN_DATA1 = [{
@@ -276,6 +312,14 @@ export const HOURCOLUMN_DATA1 = [{
   prop: 'mat_group',
   show: true
 }, {
+  label: '加工機台',
+  prop: 'process_machine',
+  show: false
+}, {
+  label: '機台分類',
+  prop: 'machine_category',
+  show: false
+}, {
   label: '厚',
   prop: 'thickness',
   show: true
@@ -345,9 +389,15 @@ export const HOURCOLUMN_DATA1 = [{
       show: true
     }
   ]
+}, {
+  label: '模型',
+  prop: 'model'
+}, {
+  label: 'MAPE',
+  prop: 'model_performance'
 }]
 
-export const COLUMN_KEY = ['category', 'std_mat', 'std_reg', 'thickness', 'width', 'length', 'reg_sup', 'predict_value', 'unit', 'max', 'q3', 'mean', 'q1', 'min']
+export const COLUMN_KEY = ['category', 'std_mat', 'std_reg', 'thickness', 'width', 'length', 'reg_sup', 'predict_value', 'unit', 'max', 'q3', 'mean', 'q1', 'min', 'model', 'model_performance']
 export const COLUMN_CHINESE = [{
   category: '類別',
   std_mat: '標準材質',
@@ -362,17 +412,30 @@ export const COLUMN_CHINESE = [{
   q1: 'Q1',
   mean: 'Mean',
   q3: 'Q3',
-  max: 'Upper Bound'
+  max: 'Upper Bound',
+  model: '模型',
+  model_performance: 'MAPE'
 }]
 
-export const HOUR_COLUMN_KEY = ['category', 'mat_group', 'std_mat', 'std_reg', 'thickness', 'width', 'length', 'reg_sup', 'predict_value', 'gen_count', 'gen_max', 'gen_mean', 'gen_min', 'comp_count', 'comp_max', 'comp_mean', 'comp_min']
+export const HOUR_COLUMN_KEY = ['category', 'std_mat', 'std_reg', 'mat_group', 'process_machine', 'machine_category', 'thickness', 'width', 'length', 'reg_sup', 'predict_value', 'gen_count', 'gen_max', 'gen_mean', 'gen_min', 'comp_count', 'comp_max', 'comp_mean', 'comp_min', 'model', 'model_performance']
 export const HOUR_COLUMN_CHINESE = [{
   category: '類別',
-  mat_group: '製程類別',
   std_mat: '標準材質',
   std_reg: '標準規範',
+  mat_group: '材質群組',
+  process_machine: '加工機台',
+  machine_category: '機台分類',
   thickness: '厚',
   width: '寬',
   length: '長',
-  reg_sup: '規範附註'
+  reg_sup: '規範附註',
+  predict_value: '預測值',
+  unit: '單位',
+  min: 'Lower Bound',
+  q1: 'Q1',
+  mean: 'Mean',
+  q3: 'Q3',
+  max: 'Upper Bound',
+  model: '模型',
+  model_performance: 'MAPE'
 }]

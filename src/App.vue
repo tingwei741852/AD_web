@@ -21,7 +21,10 @@
               工時預測
             </li></router-link>
             <router-link to="/Prediction_ROM"><li>
-              報價預測
+              物料報價
+            </li></router-link>
+             <router-link to="/Train"><li>
+              模型訓練
             </li></router-link>
             <!-- <li>
               <el-dropdown>
@@ -94,7 +97,7 @@ export default {
     padding: 15px;
     padding-left: 25px;
     padding-right: 25px;
-    background-color: #613F75;
+    background-color: rgb(127, 16, 132);
     color: #ffffff;
 
     a {
