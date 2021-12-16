@@ -272,7 +272,7 @@ export default {
       },
       price_dialogform: {
         exchange_rate: '',
-        aluminium: '',
+        aluminum: '',
         copper: '',
         Ni: '',
         Pb: '',

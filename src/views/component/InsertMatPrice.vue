@@ -12,7 +12,7 @@
           </td>
           <td>
             鋁
-            <el-input type="number" v-model="form.aluminium" placeholder="請輸入鋁價格"></el-input>
+            <el-input type="number" v-model="form.aluminum" placeholder="請輸入鋁價格"></el-input>
           </td>
           <td>
             銅
