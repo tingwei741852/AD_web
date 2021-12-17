@@ -16,7 +16,7 @@
       {{scope.row[col.prop]}}
       <!-- <el-tooltip class="item" effect="dark" content="Right Center 提示文字" placement="right" v-show="error_msg['error_message'][item.prop]['item'].indexOf(scope.$index) > 0"> -->
         <span v-if="error_msg['error_message'][col.prop]" style="color:#DF5E5E">
-          <el-tooltip class="item" effect="dark" :content="error_msg['error_message'][col.prop]['msg']" placement="right" v-show="error_msg['error_message'][col.prop]['item'].indexOf((pagesize*(currentPage-1))+(scope.$index)) >= 0">
+          <el-tooltip class="item" effect="dark" :content="error_msg['error_message'][col.prop]['msg']" placement="right" v-show="error_msg['error_message'][col.prop]['item'].indexOf(scope.row['id']) >= 0">
         <i class="el-icon-warning"></i>
         </el-tooltip></span>
     </template>

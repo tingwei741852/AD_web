@@ -10,6 +10,8 @@
           type="selection"
           width="55">
           </el-table-column>
+          <el-table-column label="ID" prop="id">
+          </el-table-column>
         <!-- <el-table-column>
           {{col.filter(item => item.show == true)}}
         </el-table-column> -->

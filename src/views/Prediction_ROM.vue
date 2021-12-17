@@ -46,22 +46,25 @@
         </el-select>
       </div>
       <div class = "errordatarow" v-show="errordatarow.length > 0" @click="error_row_detail = true">
-        <div>錯誤資料筆數:</div>
+        <div>錯誤資料ID:</div>
         {{errordatarow}}
       </div>
-      <div style="display: inline-block;margin-left:10px; width:180px;font-weight: bold;" v-show="errordatarow.length > 0">
+      <!-- <div style="display: inline-block;margin-left:10px; width:180px;font-weight: bold;" v-show="errordatarow.length > 0">
         <div>有錯誤資料的頁數:</div>
         {{errordatapage}}
-      </div>
+      </div> -->
     </div>
     <div class="table_block">
       <el-card class="box-card">
         <div style="margin-bottom:15px">
           <span style="vertical-align: top;display: inline-block;">
-            <el-button  type="primary" @click="deleteselect">刪除選取資料</el-button>
+            <el-button  type="primary" @click="deleteselect"  :disabled="tableSelection.length===0">刪除選取資料</el-button>
           </span>
           <span style="vertical-align: top;display: inline-block;margin-left:15px">
-            <el-button  type="primary" @click="tableData=[]">刪除所有資料</el-button>
+            <el-button  type="primary" @click="deleterrordata" :disabled="errordatarow.length===0">刪除錯誤資料</el-button>
+          </span>
+          <span style="vertical-align: top;display: inline-block;margin-left:15px">
+            <el-button  type="primary">刪除所有資料</el-button>
           </span>
            <span style="vertical-align: top;display: inline-block; float:right;">
             <el-select value-key="prop" v-model="column_model" multiple collapse-tags  placeholder="請選擇顯示欄位">
@@ -165,7 +168,7 @@
               {{scope.row[item.prop]}}
               <!-- <el-tooltip class="item" effect="dark" content="Right Center 提示文字" placement="right" v-show="error_msg['error_message'][item.prop]['item'].indexOf(scope.$index) > 0"> -->
                 <span v-if="error_msg['error_message'][item.prop]" style="color:#DF5E5E">
-                  <el-tooltip class="item" effect="dark" :content="error_msg['error_message'][item.prop]['msg']" placement="right" v-show="error_msg['error_message'][item.prop]['item'].indexOf((pagesize*(currentPage-1))+(scope.$index)) >= 0">
+                  <el-tooltip class="item" effect="dark" :content="error_msg['error_message'][item.prop]['msg']" placement="right" v-show="error_msg['error_message'][item.prop]['item'].indexOf(scope.row['id']) >= 0">
                 <i class="el-icon-warning"></i>
                </el-tooltip></span>
             </template>
@@ -204,7 +207,7 @@
       <el-table :data="error_row_tableData">
         <el-table-column
         prop="row"
-        label="錯誤筆數">
+        label="錯誤ID">
         </el-table-column>
         <el-table-column
         prop="excel_row"
@@ -385,14 +388,15 @@ export default {
     },
     error_msg: function (value) {
       var error_array = value.error_message
+      console.log(error_array)
       var errordatarow = []
       var errortabledatarow = []
       for (var key in error_array) {
         error_array[key].item.forEach(function (value, index, array) {
           if (errordatarow.indexOf(value) === -1) {
-            errordatarow.push(value + 1)
+            errordatarow.push(value)
           }
-          var errortabledatarow_ele = { row: value + 1, excel_row: value + 3, reason: error_array[key].msg }
+          var errortabledatarow_ele = { row: value, excel_row: value + 2, reason: error_array[key].msg }
           errortabledatarow.push(errortabledatarow_ele)
         })
       }
@@ -474,7 +478,7 @@ export default {
       console.log(data)
       // const header = this.getHeaderRow(workbook.Sheets[workbook.SheetNames[0]])
       data.forEach(function (value, index, array) {
-        array[index].id = index
+        array[index].id = index + 1
       })
       console.log(data)
       this.tableData = data
@@ -654,11 +658,11 @@ export default {
       console.log(this.tableSelection)
     },
     deleteselect () {
-      if (this.tableSelection.length === 0) {
-        this.$alert('請勾選欲刪除資料', '提醒', {
-          confirmButtonText: '確定'
-        })
-      }
+      // if (this.tableSelection.length === 0) {
+      //   this.$alert('請勾選欲刪除資料', '提醒', {
+      //     confirmButtonText: '確定'
+      //   })
+      // }
       var index = 0
       this.tableData.forEach(tablevalue => {
         console.log(this.tableSelection)
@@ -731,6 +735,17 @@ export default {
           }
         })
         .catch((error) => console.log(error))
+    },
+    deleterrordata () {
+      var index = 0
+      this.tableData.forEach(tablevalue => {
+        this.errordatarow.forEach(errorvalue => {
+          if (tablevalue.id === errorvalue) {
+            this.tableData.splice(index, 1)
+          }
+        })
+        index += 1
+      })
     }
   }
 }
