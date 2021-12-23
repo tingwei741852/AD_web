@@ -7,8 +7,8 @@
         <!-- <tr v-for="(form, idx) in forms" v-bind:key="idx"> -->
         <tr>
           <td>
-            材質群組
-            <el-select v-model="form.mat_group" filterable  placeholder="材質群組">
+            製程類別
+            <el-select v-model="form.mat_group" filterable  placeholder="製程類別">
               <el-option
                 v-for="item in options.mat_group"
                 :key="item.value"

@@ -197,7 +197,7 @@ export const HOURCOLUMN_DATA = [{
   prop: 'reg_sup',
   show: false
 }, {
-  label: '材質群組',
+  label: '製程類別',
   prop: 'mat_group',
   show: true
 }, {
@@ -308,7 +308,7 @@ export const HOURCOLUMN_DATA1 = [{
   prop: 'reg_sup',
   show: true
 }, {
-  label: '材質群組',
+  label: '製程類別',
   prop: 'mat_group',
   show: true
 }, {
@@ -422,7 +422,7 @@ export const HOUR_COLUMN_CHINESE = [{
   category: '類別',
   std_mat: '標準材質',
   std_reg: '標準規範',
-  mat_group: '材質群組',
+  mat_group: '製程類別',
   process_machine: '加工機台',
   machine_category: '機台分類',
   thickness: '厚',
